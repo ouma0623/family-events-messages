@@ -1,0 +1,57 @@
+# 20_github.mdc
+# GitHub Issue / Template / Operation Rules
+
+## 1. 基本方針
+- Issue を実行の状態機械として扱う
+- 親Plan Issue が計画・仕様の母艦
+- 子Task Issue が実行・検証の証跡
+
+---
+
+## 2. Issueテンプレート説明
+
+### 00_plan_overview.md（親Plan）
+- 役割：
+  - 背景 / 目的 / Done
+  - 設計方針
+  - Task一覧（子Issue参照）
+- 作成：/plan フェーズ
+- 更新：Action または必要に応じ随時
+- Close：全Task完了確認後
+
+---
+
+### 10_task.md（子Task）
+- 役割：
+  - Doログ（実装の事実）
+  - Checkログ（検証の事実）
+- 作成：Plan フェーズのみ
+- 更新：
+  - Do：時系列ログ追記
+  - Check：観点・手順・結果追記
+- Close：CheckでOK判定のみ
+- 禁止：
+  - Task定義（Plan確定部分）の変更
+
+---
+
+## 3. 親子リンク規約（必須）
+- 子Task本文に親Plan Issue番号を明記
+- 親PlanのTask一覧表に子Task番号を記載
+- docs/00_INDEX に親Plan Issue を記載
+
+---
+
+## 4. ラベル運用（推奨）
+- type:overview（親Plan）
+- type:task（子Task）
+- phase:* は任意（状態はOpenとCloseで管理）
+
+---
+
+## 5. Issue運用上の禁止事項
+- 親Planを残したまま新Planを切る
+- Task未完了でPlanをCloseする
+- Issueを議論スレッド代わりに使う
+- review / doc フェーズで Issue を作成・Close しない
+- Issue は必ず /plan で確定する

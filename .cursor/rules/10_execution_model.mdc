@@ -1,0 +1,109 @@
+# 10_execution_model.mdc
+# Execution & Operation Model (PDCA + Issue Driven)
+
+## 1. 役割
+本ルールは、実装・検証・振り返りを  
+**破綻なく回すための実行モデル**を定義する。
+
+本ルールは 00_general.mdc に従属する。
+
+---
+
+## 2. 採用モデル
+- 仕様駆動開発（docs）
+- PDCA（Plan / Do / Check / Action）
+- Issue駆動（親Plan / 子Task）
+- MCP前提（自動作成・自動更新）
+
+---
+
+## 3. フェーズ責務（固定）
+
+## Pre-Plan フェーズ
+- review / doc は Plan の前段として使用してよい
+- いずれも Issue作成・仕様確定・実装を行わない
+- 出力は Plan フェーズの入力とする
+
+### Plan
+- 仕様・設計・スコープを docs に確定する
+- 親Plan Issue を作成する
+- 子Task Issue を **全量確定**する
+- Do/Checkで迷う余地を残さない
+
+### Do
+- Planで確定した Task を実行する
+- 実装内容を **証跡として記録**する
+- 新規Task・仕様変更は禁止
+- 運用目的のバッチ/スクリプトを作成した場合：
+  - `scripts/operation/` に格納し、`docs/03_OPERATIONS/runbook.md` を必ず更新する
+- テスト実行用スクリプトを作成した場合：
+  - `scripts/test/` に格納し、`docs/03_OPERATIONS/runbook.md` を必ず更新する
+
+### Check
+- TaskがDone条件を満たすか検証する
+- 観点・手順・結果を明文化する
+- OKでのみTaskをCloseする
+
+### Action
+- 全Task完了を確認する
+- 親Plan Issue を実績・知見で更新する
+- docs / Notion登録用`.md`ファイル作成 / ルールに還元する
+- 親Plan Issue をCloseする
+- 再利用可能な知見があるかを必ず判断する
+- Knowledge 化する場合：
+  - docs/80_AI_KNOWLEDGE/<category>/ に 1ファイルで作成
+  - docs/80_AI_KNOWLEDGE/INDEX.md を更新
+
+---
+
+## 4. 証跡要件（必須）
+
+### Doログ（Task Issue）
+- 実施日
+- 実施内容
+- 変更ファイル
+- 判断理由
+- 残課題
+（該当時のみ必須）
+- 作成したスクリプト：
+  - scripts/operation/ または scripts/test/ のパス
+- runbook更新：
+  - 更新した章/項目の要約
+
+### Checkログ（Task Issue）
+- 観点
+- 手順
+- 期待結果
+- 実結果
+- 判定（OK/NG）
+- 差戻先（NG時）
+
+---
+
+## 5. 逸脱検知（即停止）
+以下を検知した場合、処理を止め Plan に差し戻す。
+
+- Do/CheckでTaskを作成しようとした
+- docs未更新の仕様変更が発生した
+- Task定義（Plan確定）を変更しようとした
+- 証跡なしで実行完了と判断しようとした
+- 親PlanとTaskの状態が不整合
+- scripts/operation または scripts/test に新規スクリプトがあるのに docs/03_OPERATIONS/runbook.md が更新されていない 
+
+---
+
+## 6. MCP操作原則
+- 操作は Operation Plan として明示する
+- Read → Update/Create → Verify → Report の順を守る
+- 実行後は ID / URL / 差分を必ず報告する
+
+---
+
+## 7. 改善ループ
+- 問題・無駄・迷いが発生した場合
+  - 10_execution_model.mdc の改善対象とする
+- 改善・気づき・違和感は発見次第対応してよい
+- ただし：
+- 仕様・タスク変更 → Plan に差し戻す
+- ルール変更 → 即更新可（execution_model / github など）
+- Action は「最終整理・制度化フェーズ」

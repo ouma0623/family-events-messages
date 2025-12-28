@@ -1,0 +1,90 @@
+# 60_infra_code.mdc
+# Infrastructure / IaC Rules
+
+## 1. 目的
+インフラ変更を安全・再現可能に行う。
+
+---
+
+## 2. 基本原則
+- IaC を唯一の正とする
+- 手動変更は原則禁止
+- 最小権限を徹底する
+- AWS-CDKにて管理
+- 課金がなるべく少なく済む設計
+
+### 2.1 AWS CDKスタック構成
+- スタック名：`{ProjectName}-{Environment}-{ResourceType}`（例：`myapp-prod-network`）
+- スタックは責務ごとに分割する（Network / Compute / Database / Security）
+- 環境変数で環境を切り替える（dev / stg / prod）
+- スタック間の依存関係を明示する（`addDependency`）
+
+### 2.2 リソース命名規則
+- リソース名：`{ProjectName}-{Environment}-{ResourceType}-{Identifier}`
+- タグ付け：必須タグを統一（Project / Environment / ManagedBy）
+- 命名規則は docs/02_DESIGN/architecture.md に記載する
+
+### 2.3 コスト最適化
+- 不要なリソースは削除する
+- スケーリング設定を適切に設定する（オーバープロビジョニングを避ける）
+- リザーブドインスタンス・Savings Plansを検討する（長期運用時）
+- コストアラートを設定する
+
+---
+
+## 3. 変更管理
+- 変更内容は Task の Doログに必ず記載
+- 構成変更は docs/02_DESIGN/architecture.md と docs/01_REQUIREMENTS/changes.md を更新
+- CDKコードの変更は必ずレビューする
+- 変更前後で差分を確認する（`cdk diff`）
+
+### 3.1 デプロイ手順（必須項目）
+- デプロイ前の確認事項：
+  - 変更内容の確認（`cdk diff`）
+  - 影響範囲の確認
+  - ロールバック手順の確認
+- デプロイ手順：
+  - ステージング環境で先にデプロイ・検証
+  - 本番環境へのデプロイ
+  - デプロイ後の動作確認
+- デプロイ手順は docs/03_OPERATIONS/runbook.md に記載する
+
+### 3.2 ロールバック手順（必須項目）
+- ロールバックのトリガー条件を明示する
+- ロールバック手順を step-by-step で記載する
+- ロールバック時の影響範囲を明示する
+- ロールバック手順は docs/03_OPERATIONS/runbook.md に記載する
+
+---
+
+## 4. 破壊的変更
+- Plan で影響範囲を明示
+- ロールバック手順を docs/03_OPERATIONS/runbook.md に記載
+- 破壊的変更の例：
+  - データベースの削除・再作成
+  - ネットワーク構成の変更
+  - セキュリティグループの大幅変更
+- 破壊的変更は必ず Plan Issue で合意を得る
+
+---
+
+## 5. 運用
+- 監視・ログ・アラートの前提を明確にする
+- 運用手順は Action 以外でも随時更新可
+
+### 5.1 監視・ログ
+- CloudWatch Logs でログを集約する
+- 重要なメトリクスをダッシュボード化する
+- アラートを設定する（エラー率・レイテンシ・リソース使用率）
+- 監視設定は docs/02_DESIGN/architecture.md に記載する
+
+### 5.2 セキュリティ
+- 最小権限の原則を徹底する（IAMロール・ポリシー）
+- シークレット管理は AWS Secrets Manager / Parameter Store を使用
+- ネットワークセキュリティグループを適切に設定する
+- セキュリティ設定は docs/02_DESIGN/architecture.md に記載する
+
+### 5.3 バックアップ・災害対策
+- 重要なデータは自動バックアップを設定する
+- バックアップの保持期間・復旧手順を明確化する
+- 災害対策手順は docs/03_OPERATIONS/runbook.md に記載する

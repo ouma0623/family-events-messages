@@ -1,0 +1,125 @@
+# 80_environment.mdc
+# Environment / Tooling Rules（実行環境ルール）
+
+> これは「不変の原則」ではなく、**プロジェクトの動作環境・ツール連携を固定するためのルール**です。  
+> 00_general.mdc ではなく 80_environment.mdc に置くのが適切です（あなたの意図どおり）。
+
+## 0. 目的
+- 開発・運用・CI・MCPの環境差異による事故を防ぐ
+- 「どのOS/Runtime/ツールで動かすか」を固定し、再現性を担保する
+- MCP連携（GitHub/Notion）を前提に、権限・秘密情報・実行経路を明確化する
+
+---
+
+## 1. 前提（必ず埋める）
+### 1.1 開発環境
+- OS：Linux (WSL2) - 6.6.87.2-microsoft-standard-WSL2
+- Shell：/bin/bash
+- Editor：Cursor
+- Node.js：v24.12.0
+- Python：3.12.3
+- パッケージ管理：npm 11.6.2
+- テスト実行：Playwright (v1.57.0)
+- フォーマッタ：
+  - JavaScript/TypeScript：Prettier（推奨設定：`prettier --write "**/*.{js,jsx,ts,tsx,json,md}"`）
+  - Python：black（推奨設定：`black --line-length 100 .`）
+  - Markdown：Prettier（推奨設定：`prettier --write "**/*.md"`）
+- リンター：
+  - JavaScript/TypeScript：ESLint（推奨設定：`eslint --ext .js,.jsx,.ts,.tsx .`）
+  - Python：pylint または flake8（推奨設定：`pylint **/*.py` または `flake8 .`）
+  - Markdown：markdownlint（推奨設定：`markdownlint "**/*.md"`）
+
+### 1.2 実行環境（本番/検証）
+- 実行場所：
+  - local（WSL2環境）
+- 環境変数の供給元：
+  - ~/.profile（ローカルのみ）
+  - GitHub / Notion のトークンは ~/.profile に設定済み
+
+### 1.3 CI（GitHub Actions 等）
+- ワークフロー名：（未設定）
+- 実行条件：（未設定）
+- 成果物：（未設定）
+
+---
+
+## 2. バージョン固定（重要）
+- Node/Pythonは「意図せず上がる」ことが事故原因になるため固定する
+- 可能なら `.tool-versions` / `.nvmrc` / `pyproject.toml` 等で明示する
+
+### 2.1 推奨設定ファイル
+- `.nvmrc`：Node.jsバージョン固定（例：`v24.12.0`）
+- `.tool-versions`：asdf用のバージョン固定（例：`nodejs 24.12.0`）
+- `pyproject.toml`：Pythonバージョン・依存関係固定
+- `.prettierrc`：Prettier設定
+- `.eslintrc.json`：ESLint設定
+- `.markdownlint.json`：markdownlint設定
+
+### 2.1 変更ルール
+- バージョン変更は Plan Issue で合意し、changes.md に記録する（必要な場合）
+- 変更後は scripts/test の疎通スクリプトで確認し、結果を Issue に残す
+
+---
+
+## 3. 秘密情報・権限（MCP前提）
+### 3.1 秘密情報の扱い
+- GitHub / Notion のトークン等は **リポジトリに置かない**
+- 置き場所は以下のいずれかに限定する
+  - OSのキーチェーン
+  - CI Secrets
+  - ローカルの .env（gitignore）
+- docs や Issue にトークン値を貼らない
+
+### 3.2 権限の最小化
+- MCPが GitHub で出来る操作（作成/更新/Close）を事前に決める
+- Notionも同様（ページ作成/追記/リンク貼り）に限定する
+- できない操作は「できない」と報告し、手動手順を runbook に落とす
+
+---
+
+## 4. 実行パス（ローカル/CI/MCP）
+### 4.1 ローカル実行
+- ローカルで実行する手順は runbook に必ず残す
+- コマンドはコピペで動く形にする（引数、カレントディレクトリ含む）
+
+### 4.2 CI実行
+- CIで動かす場合、ローカルとの差分（権限/環境変数/パス）を明記する
+- CIでしか再現しない不具合は、ログを Issue に貼り、再現条件を runbook に追記する
+
+### 4.3 MCP実行
+- MCPは「docs→Issue→Notion」の順で更新する（SSOT崩壊防止）
+- MCP実行結果は、必ず Issue に証跡（リンク/要約/差分）を残す
+
+---
+
+## 5. scripts運用（runbook連動）
+- 運用バッチ/スクリプトを作成・更新したら：
+  - scripts/operation/ に格納
+  - docs/03_OPERATIONS/runbook.md を必ず更新
+- テスト実行用スクリプトを作成・更新したら：
+  - scripts/test/ に格納
+  - docs/03_OPERATIONS/runbook.md を必ず更新
+
+---
+
+## 6. ロギング/デバッグ（最小ルール）
+- ログに出して良い情報、出してはいけない情報を決める
+- エラー時は「再現条件」「入力」「期待」「実際」「暫定対応」「恒久対応案」を Issue に残す
+
+---
+
+## 7. 禁止事項（安全装置）
+- Deprecated の採用は禁止（安定版を優先）
+- 動作未確認の大規模更新（依存一括更新等）はPlanなしでやらない
+- Notion を SSOT にしない（必ず docs が正）
+
+---
+
+## 8. 変更時の手順（環境差分の更新）
+環境・ツール変更が必要になった場合は以下を行う。
+
+1. Plan Issue に背景・目的・影響範囲を書く
+2. requirements/design に影響があれば更新する
+3. changes.md に記録（必要な場合）
+4. scripts/test で疎通確認し、結果を Issue に残す
+5. runbook に再現手順を追記する（必要な場合）

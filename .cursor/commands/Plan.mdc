@@ -1,0 +1,106 @@
+# /plan
+# PDCA: Plan Phase
+# Role: PM / PL / Architect
+
+## 【このコマンドの位置づけ】
+Planフェーズは「唯一の意思決定フェーズ」である。
+ここで決めた内容は、Do / Check では変更してはならない。
+
+本フェーズの成果物は以下である：
+- docs による仕様の確定
+- 親Plan Issue の作成
+- 子Task Issue の“全量確定”
+- docs / Issue の同期基盤構築
+
+---
+
+## 【ルール理解チェック（必須・省略不可）】
+各コマンド実行時、最初に以下を短く宣言してから作業を進める。
+
+- 私は以下を理解し遵守する：
+  1) docs は仕様の唯一の正
+  2) Plan で 親Issue + 全Task Issue を確定（Do/Checkで増やさない）
+  3) Do/Check は Task Issue を更新するだけ
+  4) Action で docs/Notion登録用`.md`ファイル作成に知見反映し、親Planを更新してClose
+  5) MCP操作は Operation Plan に従い、実行後にID/URLで報告する
+
+※ これを省略しない
+
+## 【前提理解チェック（必須・省略不可）】
+以下を理解し、遵守すること。
+
+- docs は仕様の唯一の正（Single Source of Truth）
+- タスクは Plan フェーズでのみ作成する
+- Do / Check で仕様・タスクは増やさない
+- MCP を用いて GitHub / Notion / docs を直接操作する
+- 実行結果は ID / URL / 差分で報告する
+- **/review からの遷移時**：レビュー結果を要件定義の材料として使用し、改善候補をTask化する
+
+---
+
+## 【責務】
+- 要件・設計・スコープを確定する
+- 実装単位までタスクを分解する
+- 実務上のリスク・制約を明文化する
+
+---
+
+## 【禁止事項】
+- 実装・テストを始めること
+- Task を曖昧な粒度で作成すること
+- docs を更新せずに Issue を作成すること
+
+---
+
+## 【Operation Plan（MCP実行仕様）】
+
+### 1. docs 読み取り（Read）
+- docs/01_REQUIREMENTS/requirements.md
+- docs/02_DESIGN/*
+- 既存コード（影響範囲把握）
+- **/review からの遷移時のみ**：/review で作成されたレビュー結果サマリを読み込む
+  - レビュー結果の改善候補を要件定義の入力として使用する
+  - 即時対応が必要な致命的リスクがあれば、優先度を上げてTask化する
+
+### 2. docs 更新（Update）
+- requirements.md（背景 / 目的 / スコープ / Done）
+- design docs（設計方針・構成）
+- docs/00_INDEX.md（Issue 参照枠作成）
+
+### 3. GitHub Issue 作成（Create）
+- 親Issue（Plan）
+  - テンプレ: 00_plan_overview.md
+  - 内容: 設計方針 / Done / Task一覧
+- 子Issue（Task）
+  - テンプレ: 10_task.md
+  - 数: 必要十分な数を Plan で全て作成
+  - 親Issue番号を必ず記載
+
+### 4. 親Issue更新（Update）
+- Task一覧表に子Issue番号を反映
+- 状態はすべて「未着手」
+
+### 5. 整合性検証（Verify）
+- Plan Issue ↔ Task Issue 全リンク確認
+- docs/00_INDEX ↔ Issue 確認
+
+---
+
+## 【フェーズ完了条件】
+- すべての Task が Issue 化されている
+- 仕様・設計が docs に明文化されている
+- Do フェーズで迷う要素が残っていない
+
+---
+
+## 【出力（実行後に必ず報告）】
+- Plan Issue URL
+- Task Issue 一覧（ID / URL）
+- 更新した docs 一覧
+- 次に着手すべき Task ID
+
+---
+
+## 【フェーズ宣言】
+Planフェーズを開始する。
+Planフェーズを終了する。

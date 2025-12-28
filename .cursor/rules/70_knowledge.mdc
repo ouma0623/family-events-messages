@@ -1,0 +1,177 @@
+# 70_knowledge.mdc
+# AI Knowledge Rules（運用・管理）
+
+## 0. 位置づけ
+AI Knowledge は「再利用可能な知見の資産化」を目的とする。
+仕様の正（SSOT）は requirements / design に置き、
+本ルールは **判断理由・ハマりどころ・定石・AI運用ノウハウ** を横断的に蓄積する。
+
+本リポジトリは新規PJへコピーして使う前提のため、
+AI Knowledge の正は **docs/80_AI_KNOWLEDGE/** に固定する。
+
+---
+
+## 1. 保存場所（固定）
+- AI Knowledge の唯一の保管場所：`docs/80_AI_KNOWLEDGE/`
+
+---
+
+## 2. 保存単位（必須）
+- **1 Knowledge = 1 ファイル**
+- 連番（_1, _2 など）は使用しない
+- ファイル名は **ID + 意味のある英語名**
+
+例：
+- decision/K-0007-issue-parent-child-model.md
+- pitfall/K-0012-runbook-update-miss.md
+- pattern/K-0020-operation-script-safety.md
+
+---
+
+## 3. 分類（固定）
+- decision/：判断・採用理由・トレードオフ
+- pitfall/：ハマりどころ・再発しやすい失敗
+- pattern/：実装・運用の定石
+- prompt/：AIプロンプト（/plan /do /check /action 補助）
+- mcp/：MCP操作の定型（GitHub / Notion / docs 同期）
+
+---
+
+## 4. 必須構造（テンプレ準拠）
+各 Knowledge には最低限以下を含める。
+
+- What（何が起きた／何を決めたか）
+- Why（原因／判断理由）
+- How（解決策／実施内容）
+- Prevention（再発防止：ルール・手順・自動化）
+- Reference（Issue / Docs / PR / Notion）
+
+### 4.1 テンプレート例
+
+#### decision/（判断・採用理由）
+```markdown
+# K-XXXX-<meaningful-name>.md
+
+## What
+何を決めたか（例：PDCAモデルを採用した、GitHub Issueを親子構造で管理する）
+
+## Why
+判断理由・トレードオフ（例：実行状態を明確に管理するため、将来の自分が理解できるため）
+
+## How
+実施内容（例：親Plan Issue + 子Task Issue の構造を採用、10_execution_model.mdc に定義）
+
+## Prevention
+再発防止（例：Planフェーズで全Taskを確定するルール、Do/CheckでTask追加を禁止）
+
+## Reference
+- Issue：#XXXX
+- Docs：docs/10_execution_model.mdc
+- Notion：<URL>
+```
+
+#### pitfall/（ハマりどころ・再発しやすい失敗）
+```markdown
+# K-XXXX-<meaningful-name>.md
+
+## What
+何が起きたか（例：scriptsを作成したがrunbookを更新し忘れた）
+
+## Why
+原因（例：Doフェーズでscripts作成とrunbook更新が分離されていた、必須項目として明示されていなかった）
+
+## How
+解決策（例：10_execution_model.mdc に「scripts作成時はrunbook更新必須」を明記、Do.mdc に必須項目として追加）
+
+## Prevention
+再発防止（例：Doログの必須項目に「runbook更新」を追加、逸脱検知ルールに追加）
+
+## Reference
+- Issue：#XXXX
+- Docs：docs/10_execution_model.mdc, docs/30_directory.mdc
+```
+
+#### pattern/（実装・運用の定石）
+```markdown
+# K-XXXX-<meaningful-name>.md
+
+## What
+定石の内容（例：MCP操作は Read → Update/Create → Verify → Report の順を守る）
+
+## Why
+なぜこの定石が有効か（例：SSOT崩壊を防ぐため、操作の整合性を保つため）
+
+## How
+実施方法（例：10_execution_model.mdc に定義、各コマンドのOperation Planに反映）
+
+## Prevention
+定石を守るための仕組み（例：ルールに明記、コマンドファイルにOperation Planとして記載）
+
+## Reference
+- Issue：#XXXX
+- Docs：docs/10_execution_model.mdc
+```
+
+#### prompt/（AIプロンプト補助）
+```markdown
+# K-XXXX-<meaningful-name>.md
+
+## What
+プロンプトの目的（例：/plan で親Plan Issueを作成する際のプロンプト補助）
+
+## Why
+なぜこのプロンプトが必要か（例：一貫性を保つため、必須項目を漏らさないため）
+
+## How
+プロンプト内容（例：Plan.mdc の Operation Plan セクションに記載）
+
+## Prevention
+プロンプトを維持するための仕組み（例：コマンドファイルに直接記載、テンプレートとして管理）
+
+## Reference
+- Issue：#XXXX
+- Docs：.cursor/commands/Plan.mdc
+```
+
+#### mcp/（MCP操作の定型）
+```markdown
+# K-XXXX-<meaningful-name>.md
+
+## What
+MCP操作の内容（例：Notion Work Items DBに案件ページを作成する）
+
+## Why
+なぜこの操作が必要か（例：Actionフェーズで知見をNotionに反映するため）
+
+## How
+操作手順（例：Action.mdc の Operation Plan に詳細手順を記載）
+
+## Prevention
+操作を正確に行うための仕組み（例：Operation Planに明記、テンプレートファイルを参照）
+
+## Reference
+- Issue：#XXXX
+- Docs：.cursor/commands/Action.mdc, docs/90_NOTION/TEMPLATE/notion-template.md
+- Note：Notionへの登録は手動で行う。Action.mdcでは`.md`ファイルの作成までを実行する。
+```
+
+---
+
+## 5. INDEX 更新（必須）
+- 新規追加・重要更新時は `docs/80_AI_KNOWLEDGE/INDEX.md` を必ず更新する
+- INDEX は「探せる」「一覧できる」状態を維持する
+
+---
+
+## 6. 追記タイミング（柔軟）
+- 基本：/action フェーズで整理・確定
+- 重要な知見は発見時点で随時追記してよい  
+  ※ただし最終的に /action で INDEX を整える
+
+---
+
+## 7. docs ↔ Issue ↔ Notion の関係
+- Knowledge の正は `docs/80_AI_KNOWLEDGE/`
+- Notion登録用ファイルは `docs/90_NOTION/YYYYMMDD/notion.md` に作成される
+- Notion には要約やリンク集を置いてよい（手動登録）
+- Issue には「なぜ Knowledge 化したか」の証跡を残す

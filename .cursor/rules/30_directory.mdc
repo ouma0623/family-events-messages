@@ -1,0 +1,73 @@
+# 30_directory.mdc
+# Directory & SSOT Rules
+
+## 1. 目的
+情報の散逸・二重管理を防ぎ、
+「どこを見れば何が分かるか」を固定する。
+
+---
+
+## 2. Single Source of Truth（SSOT）
+- 仕様の正：docs/
+- 実行状態の正：GitHub Issue
+- 最終成果・再現装置：Notion（手動登録）
+- Notion登録用ファイル：docs/90_NOTION/YYYYMMDD/notion.md
+- リンクハブ：docs/00_INDEX.md
+
+---
+
+## 3. docs 配置規約
+
+### 必須
+- docs/00_INDEX.md  
+  → Issue / Notion / PR の参照ハブ
+
+- docs/01_REQUIREMENTS/requirements.md  
+  → 背景 / 目的 / スコープ / Done
+
+- docs/01_REQUIREMENTS/changes.md  
+  → 仕様・挙動変更の履歴
+
+- docs/02_DESIGN/  
+  → 機能仕様 / 構成 / 基本設計
+
+- docs/03_OPERATIONS/runbook.md  
+  → 運用・再現手順
+
+- docs/80_AI_KNOWLEDGE/knowledge.md  
+  → 再利用可能な判断・知見
+
+- docs/90_NOTION/YYYYMMDD/notion.md  
+  → Notion登録用のテンプレートから生成した`.md`ファイル
+  - 日付ディレクトリ（YYYYMMDD形式）はAction実行日で自動作成
+  - ファイル名は固定：`notion.md`
+  - 例：`docs/90_NOTION/20251228/notion.md`
+
+- docs/90_NOTION/TEMPLATE/notion-template.md  
+  → Notion登録用のテンプレートファイル
+
+---
+
+## 4. 追加・変更ルール
+- 新規 docs 追加は Plan で役割を定義する
+- docs/00_INDEX.md に必ず追記する
+- 目的が重複する docs の乱立は禁止
+
+---
+
+## 5. 粒度基準
+- 「あとから読んで再現できる」粒度で書く
+- 未来の自分・他人が理解できないものは未完成
+
+---
+
+## 6. scripts 配置規約（運用/テスト）
+- 運用目的のバッチ/スクリプトを新規作成した場合：
+  - 格納先：`scripts/operation/`
+  - 併せて必須：`docs/03_OPERATIONS/runbook.md` を更新（実行手順・前提・ロールバック）
+
+- テスト実行用スクリプトを新規作成した場合（Doフェーズで作る想定）：
+  - 格納先：`scripts/test/`
+  - 併せて必須：`docs/03_OPERATIONS/runbook.md` を更新（実行方法・期待結果・注意点）
+
+※ これらが存在するのに runbook が更新されていない状態は「未完了」とみなす。

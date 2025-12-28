@@ -1,0 +1,137 @@
+# 40_command_contracts.mdc
+# Rules ↔ Commands Contract (Non-negotiable)
+
+## 1. 目的
+本ファイルは「commands が何をし、rules が何を強制するか」を契約として固定する。
+AIが迷走しやすいポイント（フェーズ逸脱・タスク増殖・証跡不足・同期漏れ）を防ぐ。
+
+この契約は 00_general.mdc の原則に従属し、10_execution_model.mdc を実行基準とする。
+
+---
+
+## 2. コマンドと責務（唯一の正）
+
+## 2-0. 前段コマンド（Pre-Plan Commands）
+以下のコマンドは Plan フェーズの前段として使用する。
+いずれも「実装・Issue確定」を行わず、Planの材料を作ることのみを目的とする。
+
+### /doc
+- 位置づけ：
+  - Plan 前段（Pre-Plan）
+  - コード正（SSOT）でのドキュメント再構築
+- 参照必須ルール：
+  - 00_general.mdc（SSOT優先順位）
+  - 30_directory.mdc（docs配置）
+  - 10_execution_model.mdc（フェーズ境界）
+- 成果物（必須）：
+  1) docs/00_INDEX.md の整理
+  2) docs/01_REQUIREMENTS/requirements.md（現状仕様として）
+  3) docs/02_DESIGN/ 一式（functional_spec.md / architecture.md / basic_design.md）
+  4) scripts が存在する場合は docs/03_OPERATIONS/runbook.md 更新
+- 除外（/docでは触らない）：
+  - docs/80_AI_KNOWLEDGE
+  - Notion
+- 禁止：
+  - 仕様の意思決定（仮定は未確定事項として明示）
+  - Issue作成・Close
+- 遷移：
+  - /Planには遷移せずに、完了報告をおこなう
+
+
+### /review
+- 位置づけ：
+  - Plan 前段（Pre-Plan）
+  - コード起点の現状分析・改善点抽出
+- 参照必須ルール：
+  - 00_general.mdc（思想・SSOT）
+  - 10_execution_model.mdc（フェーズ遷移）
+  - 50_app_code.mdc / 60_infra_code.mdc（対象に応じて）
+- 成果物（必須）：
+  1) レビュー結果サマリ（コスト/性能/可読性/運用/セキュリティ）
+  2) 改善候補の一覧（要件化可能な粒度）
+  3) 即時対応が必要な致命的リスク（あれば）
+- 禁止：
+  - コード修正
+  - Issue作成・Close
+  - 仕様確定
+- 遷移：
+  - /plan に遷移し、レビュー結果を要件定義の入力として使用する
+
+### /plan
+- 参照必須ルール：
+  - 00_general.mdc（思想・SSOT）
+  - 10_execution_model.mdc（Plan責務）
+  - 30_directory.mdc（docs配置・SSOT）
+  - 20_github.mdc（Issue親子・テンプレ）
+  - /reviewで作成されたレビュー結果(/reviewからの場合のみ)
+- 成果物（必須）：
+  1) docs更新（requirements/design/index）
+  2) 親Plan Issue 作成（00_plan_overview）
+  3) 子Task Issue を“全量”作成（10_task）
+  4) 親PlanのTask表に子Issue番号反映
+  5) docs/00_INDEX にリンク反映
+- 禁止：
+  - 実装・テスト開始（Do/Check領域）
+  - 仕様が docs にないまま Issue 作成
+
+### /do
+- 参照必須ルール：
+  - 10_execution_model.mdc（Do責務・Doログ必須項目）
+  - 50_app_code.mdc / 60_infra_code.mdc（対象に応じて）
+  - 20_github.mdc（Task更新・禁止事項）
+- 成果物（必須）：
+  1) 対象Task Issue の Doログを時系列で追記（必須項目を満たす）
+  2) コード変更（必要最小）
+  3) 可能ならテストコード追加
+- 禁止：
+  - 新規Task作成
+  - Task定義（Plan確定部分）改変
+  - 仕様変更（必要なら /plan に差戻）
+
+### /check
+- 参照必須ルール：
+  - 10_execution_model.mdc（Checkログ必須項目）
+  - 20_github.mdc（OK時のclose・親Plan表更新）
+- 成果物（必須）：
+  1) 対象Task Issue の Checkログ追記（観点/手順/期待/実結果/判定）
+  2) OKなら Task Close
+  3) 親Plan Issue の Task表を ⏳→✅ 更新
+- 禁止：
+  - 妥協OK（証跡なしOK）
+  - 新規Task作成（必要なら /plan差戻）
+
+### /action
+- 参照必須ルール：
+  - 10_execution_model.mdc（Action責務）
+  - 30_directory.mdc（Knowledge/Runbook/Changes/Index）
+  - 20_github.mdc（親Plan更新→Close）
+  - 70_knowledge.mdc(AIナレッジ管理運用)
+- 成果物（必須）：
+  1) 全Task完了確認
+  2) 親Plan Issue を実績・知見で更新
+  3) docs更新（AI_KNOWLEDGE / docs/03_OPERATIONS/runbook.md / docs/01_REQUIREMENTS/changes.md / docs/00_INDEX.md）
+  4) Notion登録用`.md`ファイル作成（`docs/90_NOTION/YYYYMMDD/notion.md`）
+     - テンプレートから生成し、日付ディレクトリに配置
+     - Notionへの登録は手動で行う
+  5) 親Plan Issue Close
+- 禁止：
+  - docs/Notion用`.md`ファイル未作成のまま Close
+- docs/03_OPERATIONS/runbook.md 未更新のまま Close（scripts 作成・更新時）
+
+---
+
+## 3. 同期の"最低条件"（破ったら失敗扱い）
+- docs/00_INDEX に Plan Issue がリンクされている
+- docs/90_NOTION/YYYYMMDD/notion.md が作成されている（Action実行時）
+- 親Plan に Task の一覧と Issue 番号が揃っている
+- Task Issue に Do/Check の証跡が残っている（必須項目を満たす）
+- OKタスクは Close 済みで、親Plan表と一致している
+
+---
+
+## 4. ルール改善の扱い（柔軟化）
+- ルール改善は発見次第実施してよい
+- ただし、以下の区分を守る：
+  - “思想（00_general）”は滅多に触らない（憲法）
+  - “実行モデル（10_execution_model/20_github/30_directory）”は都度改善OK
+  - 仕様・タスクの変更は Plan に差戻して確定する
