@@ -1,0 +1,1 @@
+{"version":3,"file":"csv.d.ts","sourceRoot":"","sources":["../../src/discovery/csv.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAGH,OAAO,EAAE,qBAAqB,EAAE,MAAM,SAAS,CAAC;AAChD,OAAO,EAAE,MAAM,EAAE,MAAM,2BAA2B,CAAC;AAInD;;GAEG;AACH,wBAAgB,iBAAiB,CAC/B,MAAM,EAAE,MAAM,EACd,MAAM,EAAE,MAAM,EACd,UAAU,GAAE,MAAW,GACtB,qBAAqB,CA4BvB"}

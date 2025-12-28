@@ -1,0 +1,2993 @@
+{
+ "Resources": {
+  "UserPool6BA7E5F2": {
+   "Type": "AWS::Cognito::UserPool",
+   "Properties": {
+    "AccountRecoverySetting": {
+     "RecoveryMechanisms": [
+      {
+       "Name": "verified_email",
+       "Priority": 1
+      }
+     ]
+    },
+    "AdminCreateUserConfig": {
+     "AllowAdminCreateUserOnly": false
+    },
+    "AutoVerifiedAttributes": [
+     "email"
+    ],
+    "EmailVerificationMessage": "確認コード: {####}",
+    "EmailVerificationSubject": "あなたのアカウント確認コード",
+    "Policies": {
+     "PasswordPolicy": {
+      "MinimumLength": 8,
+      "RequireLowercase": true,
+      "RequireNumbers": true,
+      "RequireSymbols": false,
+      "RequireUppercase": false
+     }
+    },
+    "SmsVerificationMessage": "The verification code to your new account is {####}",
+    "UserPoolName": "ouma-fe-prd-userpool",
+    "UserPoolTags": {
+     "CostCenter": "training",
+     "Env": "prd",
+     "ManagedBy": "cdk",
+     "Org": "ouma",
+     "Owner": "ouma0623",
+     "System": "family-event"
+    },
+    "UsernameAttributes": [
+     "email"
+    ],
+    "VerificationMessageTemplate": {
+     "DefaultEmailOption": "CONFIRM_WITH_CODE",
+     "EmailMessage": "確認コード: {####}",
+     "EmailSubject": "あなたのアカウント確認コード",
+     "SmsMessage": "The verification code to your new account is {####}"
+    }
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/UserPool/Resource"
+   }
+  },
+  "UserPoolUserPoolDomain9F01E991": {
+   "Type": "AWS::Cognito::UserPoolDomain",
+   "Properties": {
+    "Domain": "ouma-fe-prd-auth",
+    "UserPoolId": {
+     "Ref": "UserPool6BA7E5F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/UserPool/UserPoolDomain/Resource"
+   }
+  },
+  "UserPoolClient2F5918F7": {
+   "Type": "AWS::Cognito::UserPoolClient",
+   "Properties": {
+    "AllowedOAuthFlows": [
+     "code"
+    ],
+    "AllowedOAuthFlowsUserPoolClient": true,
+    "AllowedOAuthScopes": [
+     "openid",
+     "email",
+     "profile"
+    ],
+    "CallbackURLs": [
+     "http://localhost:3000/app/callback",
+     "https://app.oumasan.org/app/callback"
+    ],
+    "ExplicitAuthFlows": [
+     "ALLOW_USER_PASSWORD_AUTH",
+     "ALLOW_USER_SRP_AUTH",
+     "ALLOW_REFRESH_TOKEN_AUTH"
+    ],
+    "GenerateSecret": false,
+    "LogoutURLs": [
+     "http://localhost:3000/app",
+     "https://app.oumasan.org/app"
+    ],
+    "SupportedIdentityProviders": [
+     "COGNITO"
+    ],
+    "UserPoolId": {
+     "Ref": "UserPool6BA7E5F2"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/UserPoolClient/Resource"
+   }
+  },
+  "DependenciesLayerDF300E31": {
+   "Type": "AWS::Lambda::LayerVersion",
+   "Properties": {
+    "CompatibleRuntimes": [
+     "nodejs20.x"
+    ],
+    "Content": {
+     "S3Bucket": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+     "S3Key": "95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip"
+    },
+    "Description": "Common dependencies for Lambda functions (@aws-sdk, axios, express, etc.)",
+    "LayerName": "ouma-fe-prd-dependencies-layer"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/DependenciesLayer/Resource",
+    "aws:asset:path": "asset.95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Content"
+   }
+  },
+  "ApiLambdaRole66D0B4CD": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/ApiLambdaRole/Resource"
+   }
+  },
+  "ApiLambdaRoleDefaultPolicy84E47AF4": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttEventsTableD24865E5Arn2808B4A2"
+        },
+        {
+         "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttUsersTable9725E9C8Arn5684EF99"
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttEventsTableD24865E5Arn2808B4A2"
+           },
+           "/index/*"
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttUsersTable9725E9C8Arn5684EF99"
+           },
+           "/index/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:Query",
+        "dynamodb:Scan"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttCityGeoTable6C087845Arn66A11085"
+        },
+        {
+         "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttSummariesTable8DD3746BArn9A8AE2C3"
+        }
+       ]
+      },
+      {
+       "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetSecretValue"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefLineSecret5EEE27B8671C702C"
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::ImportValue": "ouma-fe-prd-ops:ExportsOutputFnGetAttAppLogGroup7D8CD952Arn3582BE94"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "ApiLambdaRoleDefaultPolicy84E47AF4",
+    "Roles": [
+     {
+      "Ref": "ApiLambdaRole66D0B4CD"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/ApiLambdaRole/DefaultPolicy/Resource"
+   }
+  },
+  "ApiEventsSearchFn75E4C14E": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+     "S3Key": "95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DYNAMODB_TABLE_EVENTS": {
+       "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefEventsTableD24865E55C5ECA9E"
+      },
+      "DYNAMODB_TABLE_USERS": {
+       "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefUsersTable9725E9C857961836"
+      },
+      "DYNAMODB_TABLE_SUMMARIES": {
+       "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefSummariesTable8DD3746B81270BC5"
+      }
+     }
+    },
+    "FunctionName": "ouma-fe-prd-api-events-search",
+    "Handler": "handlers/events-search.handler",
+    "Layers": [
+     {
+      "Ref": "DependenciesLayerDF300E31"
+     }
+    ],
+    "LoggingConfig": {
+     "LogGroup": {
+      "Fn::ImportValue": "ouma-fe-prd-ops:ExportsOutputRefAppLogGroup7D8CD9527CC48D3E"
+     }
+    },
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "ApiLambdaRole66D0B4CD",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "ApiLambdaRoleDefaultPolicy84E47AF4",
+    "ApiLambdaRole66D0B4CD"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/ApiEventsSearchFn/Resource",
+    "aws:asset:path": "asset.95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "ApiEventsDetailFnE40188A6": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+     "S3Key": "95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DYNAMODB_TABLE_EVENTS": {
+       "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefEventsTableD24865E55C5ECA9E"
+      }
+     }
+    },
+    "FunctionName": "ouma-fe-prd-api-events-detail",
+    "Handler": "handlers/events-detail.handler",
+    "Layers": [
+     {
+      "Ref": "DependenciesLayerDF300E31"
+     }
+    ],
+    "LoggingConfig": {
+     "LogGroup": {
+      "Fn::ImportValue": "ouma-fe-prd-ops:ExportsOutputRefAppLogGroup7D8CD9527CC48D3E"
+     }
+    },
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "ApiLambdaRole66D0B4CD",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "ApiLambdaRoleDefaultPolicy84E47AF4",
+    "ApiLambdaRole66D0B4CD"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/ApiEventsDetailFn/Resource",
+    "aws:asset:path": "asset.95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "ApiWeekendFnA572686A": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+     "S3Key": "95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DYNAMODB_TABLE_EVENTS": {
+       "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefEventsTableD24865E55C5ECA9E"
+      },
+      "DYNAMODB_TABLE_USERS": {
+       "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefUsersTable9725E9C857961836"
+      }
+     }
+    },
+    "FunctionName": "ouma-fe-prd-api-weekend",
+    "Handler": "handlers/weekend.handler",
+    "Layers": [
+     {
+      "Ref": "DependenciesLayerDF300E31"
+     }
+    ],
+    "LoggingConfig": {
+     "LogGroup": {
+      "Fn::ImportValue": "ouma-fe-prd-ops:ExportsOutputRefAppLogGroup7D8CD9527CC48D3E"
+     }
+    },
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "ApiLambdaRole66D0B4CD",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "ApiLambdaRoleDefaultPolicy84E47AF4",
+    "ApiLambdaRole66D0B4CD"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/ApiWeekendFn/Resource",
+    "aws:asset:path": "asset.95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "ApiUsersSettingsGetFn62ED22F3": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+     "S3Key": "95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DYNAMODB_TABLE_USERS": {
+       "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefUsersTable9725E9C857961836"
+      }
+     }
+    },
+    "FunctionName": "ouma-fe-prd-api-users-settings-get",
+    "Handler": "handlers/users-settings-get.handler",
+    "Layers": [
+     {
+      "Ref": "DependenciesLayerDF300E31"
+     }
+    ],
+    "LoggingConfig": {
+     "LogGroup": {
+      "Fn::ImportValue": "ouma-fe-prd-ops:ExportsOutputRefAppLogGroup7D8CD9527CC48D3E"
+     }
+    },
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "ApiLambdaRole66D0B4CD",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "ApiLambdaRoleDefaultPolicy84E47AF4",
+    "ApiLambdaRole66D0B4CD"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/ApiUsersSettingsGetFn/Resource",
+    "aws:asset:path": "asset.95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "ApiUsersSettingsPostFn4F92B9CE": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+     "S3Key": "95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DYNAMODB_TABLE_USERS": {
+       "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefUsersTable9725E9C857961836"
+      }
+     }
+    },
+    "FunctionName": "ouma-fe-prd-api-users-settings-post",
+    "Handler": "handlers/users-settings-post.handler",
+    "Layers": [
+     {
+      "Ref": "DependenciesLayerDF300E31"
+     }
+    ],
+    "LoggingConfig": {
+     "LogGroup": {
+      "Fn::ImportValue": "ouma-fe-prd-ops:ExportsOutputRefAppLogGroup7D8CD9527CC48D3E"
+     }
+    },
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "ApiLambdaRole66D0B4CD",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "ApiLambdaRoleDefaultPolicy84E47AF4",
+    "ApiLambdaRole66D0B4CD"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/ApiUsersSettingsPostFn/Resource",
+    "aws:asset:path": "asset.95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "ApiLineLinkFn1806B583": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+     "S3Key": "95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DYNAMODB_TABLE_USERS": {
+       "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefUsersTable9725E9C857961836"
+      },
+      "SECRET_NAME_LINE": {
+       "Fn::Join": [
+        "-",
+        [
+         {
+          "Fn::Select": [
+           0,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefLineSecret5EEE27B8671C702C"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           1,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefLineSecret5EEE27B8671C702C"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           2,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefLineSecret5EEE27B8671C702C"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       ]
+      }
+     }
+    },
+    "FunctionName": "ouma-fe-prd-api-line-link",
+    "Handler": "handlers/line-link.handler",
+    "Layers": [
+     {
+      "Ref": "DependenciesLayerDF300E31"
+     }
+    ],
+    "LoggingConfig": {
+     "LogGroup": {
+      "Fn::ImportValue": "ouma-fe-prd-ops:ExportsOutputRefAppLogGroup7D8CD9527CC48D3E"
+     }
+    },
+    "MemorySize": 256,
+    "Role": {
+     "Fn::GetAtt": [
+      "ApiLambdaRole66D0B4CD",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "Timeout": 10
+   },
+   "DependsOn": [
+    "ApiLambdaRoleDefaultPolicy84E47AF4",
+    "ApiLambdaRole66D0B4CD"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/ApiLineLinkFn/Resource",
+    "aws:asset:path": "asset.95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "BatchLambdaRole6C54EF21": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/BatchLambdaRole/Resource"
+   }
+  },
+  "BatchLambdaRoleDefaultPolicy3F25F2CB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttEventsTableD24865E5Arn2808B4A2"
+        },
+        {
+         "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttSummariesTable8DD3746BArn9A8AE2C3"
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttEventsTableD24865E5Arn2808B4A2"
+           },
+           "/index/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:Query",
+        "dynamodb:Scan"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttUsersTable9725E9C8Arn5684EF99"
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttUsersTable9725E9C8Arn5684EF99"
+           },
+           "/index/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetSecretValue"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefLineSecret5EEE27B8671C702C"
+       }
+      },
+      {
+       "Action": "bedrock:InvokeModel",
+       "Effect": "Allow",
+       "Resource": "arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-3-sonnet-20240229-v1:0"
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": "arn:aws:logs:ap-northeast-1:730335221037:log-group:/ouma/fe/prd/batch:*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "BatchLambdaRoleDefaultPolicy3F25F2CB",
+    "Roles": [
+     {
+      "Ref": "BatchLambdaRole6C54EF21"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/BatchLambdaRole/DefaultPolicy/Resource"
+   }
+  },
+  "BatchSecurityGroup77EC865F": {
+   "Type": "AWS::EC2::SecurityGroup",
+   "Properties": {
+    "GroupDescription": "Security group for batch EC2 instances",
+    "SecurityGroupEgress": [
+     {
+      "CidrIp": "0.0.0.0/0",
+      "Description": "Allow all outbound traffic by default",
+      "IpProtocol": "-1"
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "VpcId": {
+     "Fn::ImportValue": "ouma-fe-prd-network:ExportsOutputRefVpc8378EB38272D6E3A"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/BatchSecurityGroup/Resource"
+   }
+  },
+  "BatchEc2RoleEBBD6860": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "ec2.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/AmazonSSMManagedInstanceCore"
+       ]
+      ]
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/BatchEc2Role/Resource"
+   }
+  },
+  "BatchEc2RoleDefaultPolicy162CFC79": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:PutItem",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:UpdateItem"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttEventsTableD24865E5Arn2808B4A2"
+        },
+        {
+         "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttSummariesTable8DD3746BArn9A8AE2C3"
+        },
+        {
+         "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttUsersTable9725E9C8Arn5684EF99"
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttEventsTableD24865E5Arn2808B4A2"
+           },
+           "/index/*"
+          ]
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttUsersTable9725E9C8Arn5684EF99"
+           },
+           "/index/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "dynamodb:BatchGetItem",
+        "dynamodb:ConditionCheckItem",
+        "dynamodb:DescribeTable",
+        "dynamodb:GetItem",
+        "dynamodb:GetRecords",
+        "dynamodb:GetShardIterator",
+        "dynamodb:Query",
+        "dynamodb:Scan"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputFnGetAttCityGeoTable6C087845Arn66A11085"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:GetSecretValue"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefLineSecret5EEE27B8671C702C"
+       }
+      },
+      {
+       "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+       ],
+       "Effect": "Allow",
+       "Resource": "arn:aws:logs:ap-northeast-1:730335221037:log-group:/ouma/fe/prd/batch:*"
+      },
+      {
+       "Action": [
+        "ec2:DescribeInstances",
+        "ec2:TerminateInstances"
+       ],
+       "Condition": {
+        "StringEquals": {
+         "ec2:ResourceTag/BatchType": [
+          "weekly-ingest",
+          "friday-notify"
+         ]
+        }
+       },
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "s3:GetBucket*",
+        "s3:GetObject*",
+        "s3:List*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StaticWebBucketBBBD7AAE",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "StaticWebBucketBBBD7AAE",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "BatchEc2RoleDefaultPolicy162CFC79",
+    "Roles": [
+     {
+      "Ref": "BatchEc2RoleEBBD6860"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/BatchEc2Role/DefaultPolicy/Resource"
+   }
+  },
+  "BatchInstanceProfile46EDDBBE": {
+   "Type": "AWS::IAM::InstanceProfile",
+   "Properties": {
+    "Roles": [
+     {
+      "Ref": "BatchEc2RoleEBBD6860"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/BatchInstanceProfile/Resource"
+   }
+  },
+  "Ec2LauncherRole003CC87B": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ],
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/Ec2LauncherRole/Resource"
+   }
+  },
+  "Ec2LauncherRoleDefaultPolicyDBC10B96": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "ec2:RunInstances",
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": "ec2:CreateTags",
+       "Effect": "Allow",
+       "Resource": "arn:aws:ec2:*:*:instance/*"
+      },
+      {
+       "Action": "iam:PassRole",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "BatchEc2RoleEBBD6860",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "Ec2LauncherRoleDefaultPolicyDBC10B96",
+    "Roles": [
+     {
+      "Ref": "Ec2LauncherRole003CC87B"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/Ec2LauncherRole/DefaultPolicy/Resource"
+   }
+  },
+  "Ec2LauncherWeekly2702EFE3": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+     "S3Key": "c23fe3801877b07641507c9c8cdb137dcabf7c14e5bb77e0fda5b396292a613b.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "INSTANCE_TYPE": "t3.micro",
+      "AMI_ID": "ami-0ff5ad26b079f000d",
+      "SECURITY_GROUP_ID": {
+       "Fn::GetAtt": [
+        "BatchSecurityGroup77EC865F",
+        "GroupId"
+       ]
+      },
+      "SUBNET_ID": {
+       "Fn::ImportValue": "ouma-fe-prd-network:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC"
+      },
+      "IAM_ROLE_ARN": {
+       "Fn::GetAtt": [
+        "BatchInstanceProfile46EDDBBE",
+        "Arn"
+       ]
+      },
+      "BATCH_TYPE": "weekly-ingest",
+      "S3_BUCKET": "ouma-fe-prd-static-web",
+      "S3_KEY": "batch-code.zip"
+     }
+    },
+    "FunctionName": "ouma-fe-prd-ec2-launcher-weekly-ingest",
+    "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogGroup": {
+      "Fn::ImportValue": "ouma-fe-prd-ops:ExportsOutputRefAppLogGroup7D8CD9527CC48D3E"
+     }
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "Ec2LauncherRole003CC87B",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "Timeout": 300
+   },
+   "DependsOn": [
+    "Ec2LauncherRoleDefaultPolicyDBC10B96",
+    "Ec2LauncherRole003CC87B"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/Ec2LauncherWeekly/Resource",
+    "aws:asset:path": "asset.c23fe3801877b07641507c9c8cdb137dcabf7c14e5bb77e0fda5b396292a613b",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "Ec2LauncherNotifyE14B0143": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+     "S3Key": "c23fe3801877b07641507c9c8cdb137dcabf7c14e5bb77e0fda5b396292a613b.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "INSTANCE_TYPE": "t3.micro",
+      "AMI_ID": "ami-0ff5ad26b079f000d",
+      "SECURITY_GROUP_ID": {
+       "Fn::GetAtt": [
+        "BatchSecurityGroup77EC865F",
+        "GroupId"
+       ]
+      },
+      "SUBNET_ID": {
+       "Fn::ImportValue": "ouma-fe-prd-network:ExportsOutputRefVpcpublicSubnet1Subnet2BB74ED74EB42ADC"
+      },
+      "IAM_ROLE_ARN": {
+       "Fn::GetAtt": [
+        "BatchInstanceProfile46EDDBBE",
+        "Arn"
+       ]
+      },
+      "BATCH_TYPE": "friday-notify",
+      "S3_BUCKET": "ouma-fe-prd-static-web",
+      "S3_KEY": "batch-code.zip"
+     }
+    },
+    "FunctionName": "ouma-fe-prd-ec2-launcher-friday-notify",
+    "Handler": "index.handler",
+    "LoggingConfig": {
+     "LogGroup": {
+      "Fn::ImportValue": "ouma-fe-prd-ops:ExportsOutputRefAppLogGroup7D8CD9527CC48D3E"
+     }
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "Ec2LauncherRole003CC87B",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "Timeout": 300
+   },
+   "DependsOn": [
+    "Ec2LauncherRoleDefaultPolicyDBC10B96",
+    "Ec2LauncherRole003CC87B"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/Ec2LauncherNotify/Resource",
+    "aws:asset:path": "asset.c23fe3801877b07641507c9c8cdb137dcabf7c14e5bb77e0fda5b396292a613b",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "BatchWeeklyIngestFnCCC8232F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+     "S3Key": "95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DYNAMODB_TABLE_EVENTS": {
+       "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefEventsTableD24865E55C5ECA9E"
+      },
+      "ENABLE_DISCOVERY": "false"
+     }
+    },
+    "FunctionName": "ouma-fe-prd-batch-weekly-ingest",
+    "Handler": "handlers/ingest.handler",
+    "Layers": [
+     {
+      "Ref": "DependenciesLayerDF300E31"
+     }
+    ],
+    "LoggingConfig": {
+     "LogGroup": "/ouma/fe/prd/batch"
+    },
+    "MemorySize": 1024,
+    "Role": {
+     "Fn::GetAtt": [
+      "BatchLambdaRole6C54EF21",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "Timeout": 900
+   },
+   "DependsOn": [
+    "BatchLambdaRoleDefaultPolicy3F25F2CB",
+    "BatchLambdaRole6C54EF21"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/BatchWeeklyIngestFn/Resource",
+    "aws:asset:path": "asset.95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "BatchFridayNotifyFn65051D23": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+     "S3Key": "95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "DYNAMODB_TABLE_EVENTS": {
+       "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefEventsTableD24865E55C5ECA9E"
+      },
+      "DYNAMODB_TABLE_USERS": {
+       "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefUsersTable9725E9C857961836"
+      },
+      "DYNAMODB_TABLE_SUMMARIES": {
+       "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefSummariesTable8DD3746B81270BC5"
+      },
+      "SECRET_NAME_LINE": {
+       "Fn::Join": [
+        "-",
+        [
+         {
+          "Fn::Select": [
+           0,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefLineSecret5EEE27B8671C702C"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           1,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefLineSecret5EEE27B8671C702C"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "Fn::Select": [
+           2,
+           {
+            "Fn::Split": [
+             "-",
+             {
+              "Fn::Select": [
+               6,
+               {
+                "Fn::Split": [
+                 ":",
+                 {
+                  "Fn::ImportValue": "ouma-fe-prd-data:ExportsOutputRefLineSecret5EEE27B8671C702C"
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       ]
+      },
+      "BEDROCK_MODEL_ID": "anthropic.claude-3-sonnet-20240229-v1:0",
+      "BEDROCK_REGION": "us-east-1"
+     }
+    },
+    "FunctionName": "ouma-fe-prd-batch-friday-notify",
+    "Handler": "handlers/notify.handler",
+    "Layers": [
+     {
+      "Ref": "DependenciesLayerDF300E31"
+     }
+    ],
+    "LoggingConfig": {
+     "LogGroup": "/ouma/fe/prd/batch"
+    },
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "BatchLambdaRole6C54EF21",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "Timeout": 300
+   },
+   "DependsOn": [
+    "BatchLambdaRoleDefaultPolicy3F25F2CB",
+    "BatchLambdaRole6C54EF21"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/BatchFridayNotifyFn/Resource",
+    "aws:asset:path": "asset.95c924c84f5d023be4edee540cb2cb401a49f115d01ed403b288f6cb412771df.zip",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "HttpApiF5A9A8A7": {
+   "Type": "AWS::ApiGatewayV2::Api",
+   "Properties": {
+    "CorsConfiguration": {
+     "AllowHeaders": [
+      "Authorization",
+      "Content-Type"
+     ],
+     "AllowMethods": [
+      "GET",
+      "POST",
+      "PATCH",
+      "DELETE",
+      "OPTIONS"
+     ],
+     "AllowOrigins": [
+      "https://app.oumasan.org",
+      "https://web.oumasan.org",
+      "http://localhost:3000"
+     ],
+     "MaxAge": 864000
+    },
+    "Name": "ouma-fe-prd-http-api",
+    "ProtocolType": "HTTP",
+    "Tags": {
+     "CostCenter": "training",
+     "Env": "prd",
+     "ManagedBy": "cdk",
+     "Org": "ouma",
+     "Owner": "ouma0623",
+     "System": "family-event"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/Resource"
+   }
+  },
+  "HttpApiDefaultStage3EEB07D6": {
+   "Type": "AWS::ApiGatewayV2::Stage",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "AutoDeploy": true,
+    "StageName": "$default",
+    "Tags": {
+     "CostCenter": "training",
+     "Env": "prd",
+     "ManagedBy": "cdk",
+     "Org": "ouma",
+     "Owner": "ouma0623",
+     "System": "family-event"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/DefaultStage/Resource"
+   }
+  },
+  "HttpApiGETv1eventsEventsSearchIntegration995D61AE": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::GetAtt": [
+      "ApiEventsSearchFn75E4C14E",
+      "Arn"
+     ]
+    },
+    "PayloadFormatVersion": "2.0"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/GET--v1--events/EventsSearchIntegration/Resource"
+   }
+  },
+  "HttpApiGETv1eventsEventsSearchIntegrationPermission12E87A1E": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "ApiEventsSearchFn75E4C14E",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-northeast-1:730335221037:",
+       {
+        "Ref": "HttpApiF5A9A8A7"
+       },
+       "/*/*/v1/events"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/GET--v1--events/EventsSearchIntegration-Permission"
+   }
+  },
+  "HttpApiGETv1events71469D0D": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "AuthorizationType": "NONE",
+    "RouteKey": "GET /v1/events",
+    "Target": {
+     "Fn::Join": [
+      "",
+      [
+       "integrations/",
+       {
+        "Ref": "HttpApiGETv1eventsEventsSearchIntegration995D61AE"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/GET--v1--events/Resource"
+   }
+  },
+  "HttpApiGETv1eventsidEventsDetailIntegration587FE99F": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::GetAtt": [
+      "ApiEventsDetailFnE40188A6",
+      "Arn"
+     ]
+    },
+    "PayloadFormatVersion": "2.0"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/GET--v1--events--{id}/EventsDetailIntegration/Resource"
+   }
+  },
+  "HttpApiGETv1eventsidEventsDetailIntegrationPermissionFD0CC981": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "ApiEventsDetailFnE40188A6",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-northeast-1:730335221037:",
+       {
+        "Ref": "HttpApiF5A9A8A7"
+       },
+       "/*/*/v1/events/{id}"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/GET--v1--events--{id}/EventsDetailIntegration-Permission"
+   }
+  },
+  "HttpApiGETv1eventsid64E63A1E": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "AuthorizationType": "NONE",
+    "RouteKey": "GET /v1/events/{id}",
+    "Target": {
+     "Fn::Join": [
+      "",
+      [
+       "integrations/",
+       {
+        "Ref": "HttpApiGETv1eventsidEventsDetailIntegration587FE99F"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/GET--v1--events--{id}/Resource"
+   }
+  },
+  "HttpApiGETv1weekendWeekendIntegration2EB3C58E": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::GetAtt": [
+      "ApiWeekendFnA572686A",
+      "Arn"
+     ]
+    },
+    "PayloadFormatVersion": "2.0"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/GET--v1--weekend/WeekendIntegration/Resource"
+   }
+  },
+  "HttpApiGETv1weekendWeekendIntegrationPermissionE96D1BF4": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "ApiWeekendFnA572686A",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-northeast-1:730335221037:",
+       {
+        "Ref": "HttpApiF5A9A8A7"
+       },
+       "/*/*/v1/weekend"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/GET--v1--weekend/WeekendIntegration-Permission"
+   }
+  },
+  "HttpApiGETv1weekend745EFCA0": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "AuthorizationType": "NONE",
+    "RouteKey": "GET /v1/weekend",
+    "Target": {
+     "Fn::Join": [
+      "",
+      [
+       "integrations/",
+       {
+        "Ref": "HttpApiGETv1weekendWeekendIntegration2EB3C58E"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/GET--v1--weekend/Resource"
+   }
+  },
+  "HttpApiGETv1usersmesettingsUsersSettingsGetIntegration649299C5": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::GetAtt": [
+      "ApiUsersSettingsGetFn62ED22F3",
+      "Arn"
+     ]
+    },
+    "PayloadFormatVersion": "2.0"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/GET--v1--users--me--settings/UsersSettingsGetIntegration/Resource"
+   }
+  },
+  "HttpApiGETv1usersmesettingsUsersSettingsGetIntegrationPermissionE6C21550": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "ApiUsersSettingsGetFn62ED22F3",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-northeast-1:730335221037:",
+       {
+        "Ref": "HttpApiF5A9A8A7"
+       },
+       "/*/*/v1/users/me/settings"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/GET--v1--users--me--settings/UsersSettingsGetIntegration-Permission"
+   }
+  },
+  "HttpApiGETv1usersmesettings7D9D9913": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "AuthorizationType": "JWT",
+    "AuthorizerId": {
+     "Ref": "HttpApiJwtAuthorizer14F16BDB"
+    },
+    "RouteKey": "GET /v1/users/me/settings",
+    "Target": {
+     "Fn::Join": [
+      "",
+      [
+       "integrations/",
+       {
+        "Ref": "HttpApiGETv1usersmesettingsUsersSettingsGetIntegration649299C5"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/GET--v1--users--me--settings/Resource"
+   }
+  },
+  "HttpApiJwtAuthorizer14F16BDB": {
+   "Type": "AWS::ApiGatewayV2::Authorizer",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "AuthorizerType": "JWT",
+    "IdentitySource": [
+     "$request.header.Authorization"
+    ],
+    "JwtConfiguration": {
+     "Audience": [
+      {
+       "Ref": "UserPoolClient2F5918F7"
+      }
+     ],
+     "Issuer": {
+      "Fn::Join": [
+       "",
+       [
+        "https://cognito-idp.ap-northeast-1.amazonaws.com/",
+        {
+         "Ref": "UserPool6BA7E5F2"
+        }
+       ]
+      ]
+     }
+    },
+    "Name": "JwtAuthorizer"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/JwtAuthorizer/Resource"
+   }
+  },
+  "HttpApiPOSTv1usersmesettingsUsersSettingsPostIntegrationF02AE602": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::GetAtt": [
+      "ApiUsersSettingsPostFn4F92B9CE",
+      "Arn"
+     ]
+    },
+    "PayloadFormatVersion": "2.0"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/POST--v1--users--me--settings/UsersSettingsPostIntegration/Resource"
+   }
+  },
+  "HttpApiPOSTv1usersmesettingsUsersSettingsPostIntegrationPermissionFDEFCE0E": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "ApiUsersSettingsPostFn4F92B9CE",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-northeast-1:730335221037:",
+       {
+        "Ref": "HttpApiF5A9A8A7"
+       },
+       "/*/*/v1/users/me/settings"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/POST--v1--users--me--settings/UsersSettingsPostIntegration-Permission"
+   }
+  },
+  "HttpApiPOSTv1usersmesettingsBBB59B58": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "AuthorizationType": "JWT",
+    "AuthorizerId": {
+     "Ref": "HttpApiJwtAuthorizer14F16BDB"
+    },
+    "RouteKey": "POST /v1/users/me/settings",
+    "Target": {
+     "Fn::Join": [
+      "",
+      [
+       "integrations/",
+       {
+        "Ref": "HttpApiPOSTv1usersmesettingsUsersSettingsPostIntegrationF02AE602"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/POST--v1--users--me--settings/Resource"
+   }
+  },
+  "HttpApiPOSTv1linelinkLineLinkIntegrationEF8EE632": {
+   "Type": "AWS::ApiGatewayV2::Integration",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "IntegrationType": "AWS_PROXY",
+    "IntegrationUri": {
+     "Fn::GetAtt": [
+      "ApiLineLinkFn1806B583",
+      "Arn"
+     ]
+    },
+    "PayloadFormatVersion": "2.0"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/POST--v1--line--link/LineLinkIntegration/Resource"
+   }
+  },
+  "HttpApiPOSTv1linelinkLineLinkIntegrationPermissionF7740FDC": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "ApiLineLinkFn1806B583",
+      "Arn"
+     ]
+    },
+    "Principal": "apigateway.amazonaws.com",
+    "SourceArn": {
+     "Fn::Join": [
+      "",
+      [
+       "arn:aws:execute-api:ap-northeast-1:730335221037:",
+       {
+        "Ref": "HttpApiF5A9A8A7"
+       },
+       "/*/*/v1/line/link"
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/POST--v1--line--link/LineLinkIntegration-Permission"
+   }
+  },
+  "HttpApiPOSTv1linelinkD2106F11": {
+   "Type": "AWS::ApiGatewayV2::Route",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "AuthorizationType": "JWT",
+    "AuthorizerId": {
+     "Ref": "HttpApiJwtAuthorizer14F16BDB"
+    },
+    "RouteKey": "POST /v1/line/link",
+    "Target": {
+     "Fn::Join": [
+      "",
+      [
+       "integrations/",
+       {
+        "Ref": "HttpApiPOSTv1linelinkLineLinkIntegrationEF8EE632"
+       }
+      ]
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/HttpApi/POST--v1--line--link/Resource"
+   }
+  },
+  "ApiDomainNameEB571102": {
+   "Type": "AWS::ApiGatewayV2::DomainName",
+   "Properties": {
+    "DomainName": "api.oumasan.org",
+    "DomainNameConfigurations": [
+     {
+      "CertificateArn": "arn:aws:acm:ap-northeast-1:730335221037:certificate/3cf9773f-6c45-4ab5-bbed-6c41686620c6",
+      "EndpointType": "REGIONAL"
+     }
+    ],
+    "Tags": {
+     "CostCenter": "training",
+     "Env": "prd",
+     "ManagedBy": "cdk",
+     "Org": "ouma",
+     "Owner": "ouma0623",
+     "System": "family-event"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/ApiDomainName/Resource"
+   }
+  },
+  "ApiMapping8F180979": {
+   "Type": "AWS::ApiGatewayV2::ApiMapping",
+   "Properties": {
+    "ApiId": {
+     "Ref": "HttpApiF5A9A8A7"
+    },
+    "DomainName": {
+     "Ref": "ApiDomainNameEB571102"
+    },
+    "Stage": "$default"
+   },
+   "DependsOn": [
+    "HttpApiDefaultStage3EEB07D6"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/ApiMapping/Resource"
+   }
+  },
+  "ApiARecordFA826994": {
+   "Type": "AWS::Route53::RecordSet",
+   "Properties": {
+    "AliasTarget": {
+     "DNSName": {
+      "Fn::GetAtt": [
+       "ApiDomainNameEB571102",
+       "RegionalDomainName"
+      ]
+     },
+     "HostedZoneId": {
+      "Fn::GetAtt": [
+       "ApiDomainNameEB571102",
+       "RegionalHostedZoneId"
+      ]
+     }
+    },
+    "HostedZoneId": "Z09413989X4T1VV91DC7",
+    "Name": "api.oumasan.org.",
+    "Type": "A"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/ApiARecord/Resource"
+   }
+  },
+  "StaticWebBucketBBBD7AAE": {
+   "Type": "AWS::S3::Bucket",
+   "Properties": {
+    "BucketEncryption": {
+     "ServerSideEncryptionConfiguration": [
+      {
+       "ServerSideEncryptionByDefault": {
+        "SSEAlgorithm": "AES256"
+       }
+      }
+     ]
+    },
+    "BucketName": "ouma-fe-prd-static-web",
+    "PublicAccessBlockConfiguration": {
+     "BlockPublicAcls": true,
+     "BlockPublicPolicy": true,
+     "IgnorePublicAcls": true,
+     "RestrictPublicBuckets": true
+    },
+    "Tags": [
+     {
+      "Key": "aws-cdk:auto-delete-objects",
+      "Value": "true"
+     },
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/StaticWebBucket/Resource"
+   }
+  },
+  "StaticWebBucketPolicy312A6CCF": {
+   "Type": "AWS::S3::BucketPolicy",
+   "Properties": {
+    "Bucket": {
+     "Ref": "StaticWebBucketBBBD7AAE"
+    },
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "s3:DeleteObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:PutBucketPolicy"
+       ],
+       "Effect": "Allow",
+       "Principal": {
+        "AWS": {
+         "Fn::GetAtt": [
+          "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+          "Arn"
+         ]
+        }
+       },
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "StaticWebBucketBBBD7AAE",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "StaticWebBucketBBBD7AAE",
+             "Arn"
+            ]
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "s3:GetObject",
+       "Condition": {
+        "StringEquals": {
+         "AWS:SourceArn": {
+          "Fn::Join": [
+           "",
+           [
+            "arn:",
+            {
+             "Ref": "AWS::Partition"
+            },
+            ":cloudfront::",
+            {
+             "Ref": "AWS::AccountId"
+            },
+            ":distribution/",
+            {
+             "Ref": "CloudFrontDistributionBA64CE3A"
+            }
+           ]
+          ]
+         }
+        }
+       },
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "cloudfront.amazonaws.com"
+       },
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          {
+           "Fn::GetAtt": [
+            "StaticWebBucketBBBD7AAE",
+            "Arn"
+           ]
+          },
+          "/*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/StaticWebBucket/Policy/Resource"
+   }
+  },
+  "StaticWebBucketAutoDeleteObjectsCustomResource10BE52FE": {
+   "Type": "Custom::S3AutoDeleteObjects",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F",
+      "Arn"
+     ]
+    },
+    "BucketName": {
+     "Ref": "StaticWebBucketBBBD7AAE"
+    }
+   },
+   "DependsOn": [
+    "StaticWebBucketPolicy312A6CCF"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/StaticWebBucket/AutoDeleteObjectsCustomResource/Default"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Version": "2012-10-17",
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ]
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/Custom::S3AutoDeleteObjectsCustomResourceProvider/Role"
+   }
+  },
+  "CustomS3AutoDeleteObjectsCustomResourceProviderHandler9D90184F": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Code": {
+     "S3Bucket": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+     "S3Key": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip"
+    },
+    "Timeout": 900,
+    "MemorySize": 128,
+    "Handler": "index.handler",
+    "Role": {
+     "Fn::GetAtt": [
+      "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs22.x",
+    "Description": {
+     "Fn::Join": [
+      "",
+      [
+       "Lambda function for auto-deleting objects in ",
+       {
+        "Ref": "StaticWebBucketBBBD7AAE"
+       },
+       " S3 bucket."
+      ]
+     ]
+    }
+   },
+   "DependsOn": [
+    "CustomS3AutoDeleteObjectsCustomResourceProviderRole3B1BD092"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
+    "aws:asset:path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+    "aws:asset:property": "Code"
+   }
+  },
+  "RewriteFunctionE78585E2": {
+   "Type": "AWS::CloudFront::Function",
+   "Properties": {
+    "AutoPublish": true,
+    "FunctionCode": "\nfunction handler(event) {\n  var request = event.request;\n  var uri = request.uri;\n  \n  // ディレクトリパスの場合（末尾が / でない、かつ拡張子がない）\n  if (!uri.includes('.') && !uri.endsWith('/')) {\n    // /events -> /events/index.html\n    request.uri = uri + '/index.html';\n  } else if (uri.endsWith('/')) {\n    // /events/ -> /events/index.html\n    request.uri = uri + 'index.html';\n  }\n  \n  return request;\n}\n      ",
+    "FunctionConfig": {
+     "Comment": "ouma-fe-prd-rewrite-function",
+     "Runtime": "cloudfront-js-1.0"
+    },
+    "Name": "ouma-fe-prd-rewrite-function"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/RewriteFunction/Resource"
+   }
+  },
+  "CloudFrontDistributionOrigin1S3OriginAccessControlD0BFFDCA": {
+   "Type": "AWS::CloudFront::OriginAccessControl",
+   "Properties": {
+    "OriginAccessControlConfig": {
+     "Name": "oumafeprdappCloudFrontDistriOrigin1S3OriginAccessControl2BD3CA26",
+     "OriginAccessControlOriginType": "s3",
+     "SigningBehavior": "always",
+     "SigningProtocol": "sigv4"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/CloudFrontDistribution/Origin1/S3OriginAccessControl/Resource"
+   }
+  },
+  "CloudFrontDistributionBA64CE3A": {
+   "Type": "AWS::CloudFront::Distribution",
+   "Properties": {
+    "DistributionConfig": {
+     "Aliases": [
+      "web.oumasan.org"
+     ],
+     "DefaultCacheBehavior": {
+      "AllowedMethods": [
+       "GET",
+       "HEAD",
+       "OPTIONS"
+      ],
+      "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+      "Compress": true,
+      "FunctionAssociations": [
+       {
+        "EventType": "viewer-request",
+        "FunctionARN": {
+         "Fn::GetAtt": [
+          "RewriteFunctionE78585E2",
+          "FunctionARN"
+         ]
+        }
+       }
+      ],
+      "TargetOriginId": "oumafeprdappCloudFrontDistributionOrigin1EF1DA76F",
+      "ViewerProtocolPolicy": "redirect-to-https"
+     },
+     "DefaultRootObject": "index.html",
+     "Enabled": true,
+     "HttpVersion": "http2",
+     "IPV6Enabled": true,
+     "Origins": [
+      {
+       "DomainName": {
+        "Fn::GetAtt": [
+         "StaticWebBucketBBBD7AAE",
+         "RegionalDomainName"
+        ]
+       },
+       "Id": "oumafeprdappCloudFrontDistributionOrigin1EF1DA76F",
+       "OriginAccessControlId": {
+        "Fn::GetAtt": [
+         "CloudFrontDistributionOrigin1S3OriginAccessControlD0BFFDCA",
+         "Id"
+        ]
+       },
+       "S3OriginConfig": {
+        "OriginAccessIdentity": ""
+       }
+      }
+     ],
+     "PriceClass": "PriceClass_100",
+     "ViewerCertificate": {
+      "AcmCertificateArn": "arn:aws:acm:us-east-1:730335221037:certificate/2cfb2ad4-2715-4ad2-90fe-f3e3322347d0",
+      "MinimumProtocolVersion": "TLSv1.2_2021",
+      "SslSupportMethod": "sni-only"
+     }
+    },
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/CloudFrontDistribution/Resource"
+   }
+  },
+  "WebARecord8D2C12F3": {
+   "Type": "AWS::Route53::RecordSet",
+   "Properties": {
+    "AliasTarget": {
+     "DNSName": {
+      "Fn::GetAtt": [
+       "CloudFrontDistributionBA64CE3A",
+       "DomainName"
+      ]
+     },
+     "HostedZoneId": {
+      "Fn::FindInMap": [
+       "AWSCloudFrontPartitionHostedZoneIdMap",
+       {
+        "Ref": "AWS::Partition"
+       },
+       "zoneId"
+      ]
+     }
+    },
+    "HostedZoneId": "Z09413989X4T1VV91DC7",
+    "Name": "web.oumasan.org.",
+    "Type": "A"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/WebARecord/Resource"
+   }
+  },
+  "WeeklyIngestRule1B62AF6A": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Weekly event ingestion batch",
+    "Name": "ouma-fe-prd-weekly-ingest-rule",
+    "ScheduleExpression": "cron(0 18 ? * MON *)",
+    "State": "ENABLED",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "Ec2LauncherWeekly2702EFE3",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "RetryPolicy": {
+       "MaximumRetryAttempts": 2
+      }
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/WeeklyIngestRule/Resource"
+   }
+  },
+  "WeeklyIngestRuleAllowEventRuleoumafeprdappEc2LauncherWeekly78E83E266C7EE4D7": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "Ec2LauncherWeekly2702EFE3",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "WeeklyIngestRule1B62AF6A",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/WeeklyIngestRule/AllowEventRuleoumafeprdappEc2LauncherWeekly78E83E26"
+   }
+  },
+  "FridayNotifyRuleA31F3887": {
+   "Type": "AWS::Events::Rule",
+   "Properties": {
+    "Description": "Friday notification batch",
+    "Name": "ouma-fe-prd-friday-notify-rule",
+    "ScheduleExpression": "cron(0 10 ? * FRI *)",
+    "State": "ENABLED",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "Targets": [
+     {
+      "Arn": {
+       "Fn::GetAtt": [
+        "Ec2LauncherNotifyE14B0143",
+        "Arn"
+       ]
+      },
+      "Id": "Target0",
+      "RetryPolicy": {
+       "MaximumRetryAttempts": 2
+      }
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/FridayNotifyRule/Resource"
+   }
+  },
+  "FridayNotifyRuleAllowEventRuleoumafeprdappEc2LauncherNotify6DB36451B21BE4E5": {
+   "Type": "AWS::Lambda::Permission",
+   "Properties": {
+    "Action": "lambda:InvokeFunction",
+    "FunctionName": {
+     "Fn::GetAtt": [
+      "Ec2LauncherNotifyE14B0143",
+      "Arn"
+     ]
+    },
+    "Principal": "events.amazonaws.com",
+    "SourceArn": {
+     "Fn::GetAtt": [
+      "FridayNotifyRuleA31F3887",
+      "Arn"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/FridayNotifyRule/AllowEventRuleoumafeprdappEc2LauncherNotify6DB36451"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/+1ZX1MbOQz/LPVjx+xRuHvhbQm0ZQZKJoG7hwzDOLaSuHitPVtOLt3Z735j758sUPpy15aWPmRiS1pZ+kn2SuuD7ODwMNt/JTZ+T6q7PaPnWTUlIe+42PjbSuLSasKsuvbgxohmVrHQDj+IAtgRe80482AWU7201+WpFXMDih2RC8CZ10t7ZnOjhQfPjioGhdCm4daclcL7DTo1RqPlNvILbc/BLmnVanbwd9AOTvRSk++0tsRz3ICTwsMD+nVZdvSFMH7HmG6LORrfkmvOhJQYLE1A4hrclh0dRNkC18J0JjEFnhxuGU+O/wlOL7QUpNH2/kzD/CNIak1OpGNU2+F8SlsT0Rpdfnh7Nrm4/evs6v3t6PLklNX1DR8tbAcw7wYnWAhtB3i36tqQNOxogkqjsYOF/ifJPNDYSPZ6R0aDpcd6l2DBCYIpSAfUQycCrd4a3KTopUfamHWgR9rUld1UqEI3S/dyrSYZPGGxAx/zEMNcsUWnPq6FTn9K6I5QwTsnLPXZ4iWWMYsaGIQxcyHvrp3pSAaXGKgnxCdCWaIjUGcKLGnajh2utQLXStzDqQGm5kYUcyWy6lxsU7y9xhgGM5gOUl+i2g2LUpCeG5gES7robVXgpdNlkzP9ukP9/G2wkpqFFu1wsIhr9LWzlbDKgHtsQDLRs6MZe81uOCugQLed6k8dP+rA0OWpQ9MxwK61Q1uApR2W7xyGskWyYkKp06HULIm9Zjf/mXk+tDrSfkwAfhI3XoKPv9x4Tm58Kx+f5+n3vJi/0H2e6L6E/flsffwezPu4pnqxKxHjeAyu0D5WjjX3h7fCeyCf5fGP+8OsOg7yDuhYeJjd8GYyq9g8DQaRWTfVJ+yKdLDSbbtKdXp4e5F/yN+dnjDO5gbl3TjMjZa5lOC74vbpfkkEwhMwQHCZ+qO2f2u8aYxqbWse7i0cFMlDfs21KLJqggZmFRPehwLUcWobS6et1KUwedPRtbY1MvGBXO6q7xbiKxx3T3XGz6q6CQCRkKsza7SFntdH54vML+t9adxfMfpfud9uuRcI7g8Utm8ay69qXzrk4+bn7TsgngmdWVc4SW/5B9Y+Jis1JUEQX6X+3rI/D/nF4/LiAfiBUUy7vNng/Mx6ElbC2OFCp0quL+UbuQcCNQd5kFVTkMFp2qa6flaxdSmf+LrKmTAGN7kxl4HmGKwa1p339NRclHopCDZiuz7IqvdEZV7qrhj/3C8pyUvNo+yUxBJmHTXNEn2CgeApLTdJ5MwSLF360v20YEKjl2uOykDNGnn7sRxcb8COxJuP/rHUnw217cg8L/WFKEttl7OBWy2p5i4u9MdhVuXxdsSpWcU+oe1bukQbdBIk3LIr3Pn3Fm1eKkliClRzaTCohUNLWfXlD+19O/qg5TrRnpyeh/ZJBQsRDB3DSqw1uljdotNL3SXgWsMG3NghocRda+RAaQeS9gj3VkSlT/cYctW/eXfZC+oCaIWq67I6W3PvUeqUDmlz9YyuF16DpattGb1orNiLl1/giaXtr/oE6C9SwFFzpQX9hkreTRDpcnixVTotYWREav3G/eT2zf5+XNk5dBPwJdp01zeL2356eJlwaTrGEVpyaPp8+wwvJekA7Jonj3xWTUJzWAQDg4A93vxerkCF7kRpW+2oYyyIwNkH9U2bNt3p9TXVN2kZDNQ1T616PDC0XfIJeAxOPjoxbvgo3ZkN+W1uN4QH/O52K/b9UazdzAnqQGWgmltUkH30v60Pfs/eHGT7rz56rffaLzRZe2/1LwOSllIWHgAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-app/CDKMetadata/Default"
+   }
+  }
+ },
+ "Mappings": {
+  "AWSCloudFrontPartitionHostedZoneIdMap": {
+   "aws": {
+    "zoneId": "Z2FDTNDATAQYW2"
+   },
+   "aws-cn": {
+    "zoneId": "Z3RFFRIM2A3IF5"
+   }
+  }
+ },
+ "Outputs": {
+  "ApiBaseUrl": {
+   "Value": {
+    "Fn::GetAtt": [
+     "HttpApiF5A9A8A7",
+     "ApiEndpoint"
+    ]
+   }
+  },
+  "ApiCustomDomain": {
+   "Value": "https://api.oumasan.org"
+  },
+  "CognitoUserPoolId": {
+   "Value": {
+    "Ref": "UserPool6BA7E5F2"
+   }
+  },
+  "CognitoUserPoolClientId": {
+   "Value": {
+    "Ref": "UserPoolClient2F5918F7"
+   }
+  },
+  "CognitoDomain": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      {
+       "Ref": "UserPoolUserPoolDomain9F01E991"
+      },
+      ".auth.ap-northeast-1.amazoncognito.com"
+     ]
+    ]
+   }
+  },
+  "StaticWebBucketName": {
+   "Value": {
+    "Ref": "StaticWebBucketBBBD7AAE"
+   }
+  },
+  "CloudFrontDistributionId": {
+   "Value": {
+    "Ref": "CloudFrontDistributionBA64CE3A"
+   }
+  },
+  "CloudFrontDistributionDomainName": {
+   "Value": {
+    "Fn::GetAtt": [
+     "CloudFrontDistributionBA64CE3A",
+     "DomainName"
+    ]
+   }
+  },
+  "WebDomain": {
+   "Value": "https://web.oumasan.org"
+  },
+  "BatchSecurityGroupId": {
+   "Description": "Security Group ID for batch EC2 instances",
+   "Value": {
+    "Fn::GetAtt": [
+     "BatchSecurityGroup77EC865F",
+     "GroupId"
+    ]
+   }
+  },
+  "BatchInstanceProfileArn": {
+   "Description": "IAM Instance Profile ARN for batch EC2 instances",
+   "Value": {
+    "Fn::GetAtt": [
+     "BatchInstanceProfile46EDDBBE",
+     "Arn"
+    ]
+   }
+  },
+  "Ec2LauncherLambdaWeeklyArn": {
+   "Description": "Lambda function ARN for weekly-ingest EC2 launcher",
+   "Value": {
+    "Fn::GetAtt": [
+     "Ec2LauncherWeekly2702EFE3",
+     "Arn"
+    ]
+   }
+  },
+  "Ec2LauncherLambdaNotifyArn": {
+   "Description": "Lambda function ARN for friday-notify EC2 launcher",
+   "Value": {
+    "Fn::GetAtt": [
+     "Ec2LauncherNotifyE14B0143",
+     "Arn"
+    ]
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

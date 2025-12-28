@@ -1,0 +1,21 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "2d7298ac3ca2df1757e7c2bdff6cd30f293175e151f86e735312502451e91c6c": {
+      "displayName": "ouma-fe-prd-data Template",
+      "source": {
+        "path": "ouma-fe-prd-data.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "730335221037-ap-northeast-1-6f9d9f7e": {
+          "bucketName": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+          "objectKey": "2d7298ac3ca2df1757e7c2bdff6cd30f293175e151f86e735312502451e91c6c.json",
+          "region": "ap-northeast-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::730335221037:role/cdk-hnb659fds-file-publishing-role-730335221037-ap-northeast-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

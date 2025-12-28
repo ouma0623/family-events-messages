@@ -1,0 +1,11 @@
+{
+  "availability-zones:account=730335221037:region=ap-northeast-1": [
+    "ap-northeast-1a",
+    "ap-northeast-1c",
+    "ap-northeast-1d"
+  ],
+  "hosted-zone:account=730335221037:domainName=oumasan.org:region=ap-northeast-1": {
+    "Id": "/hostedzone/Z09413989X4T1VV91DC7",
+    "Name": "oumasan.org."
+  }
+}

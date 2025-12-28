@@ -1,0 +1,19 @@
+{
+  "name": "ec2-launcher",
+  "version": "1.0.0",
+  "description": "EC2インスタンス起動用Lambda関数",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "package": "npm run build && zip -r function.zip index.js node_modules"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ec2": "^3.490.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.130",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}
+

@@ -22,7 +22,49 @@
 
 ## 変更履歴
 
-### YYYY-MM-DD（vX / 変更ID: CHG-0001）
+### 2025-12-28（v1 / 変更ID: CHG-0001）
+- 種別：仕様変更 / 挙動変更
+- 変更理由（Why）：
+  - インフラコード（ouma-events-infra）とアプリケーションコード（ouma-family-event）を単一リポジトリ（family-events-messages）に統合するため
+  - コードとドキュメントの一元管理を実現するため
+- 変更概要（What）：
+  - ouma-events-infraのコードをfamily-events-messages/infra/に統合
+  - ouma-family-event/packages/*をfamily-events-messages/packages/*に統合
+  - ouma-family-event/scripts/*（テストコード除外）をfamily-events-messages/scripts/operation/に統合
+  - ouma-family-event/lambda/*をfamily-events-messages/lambda/に統合
+  - app-stack.ts内の4つのパス参照を統合後のパスに修正（`../../../assets/`、`../../../lambda/`）
+  - deploy-backend.sh内のINFRA_DIRを統合後のパスに修正
+  - package.jsonにworkspaces設定を追加（`["infra", "packages/*"]`）
+  - infra/tsconfig.jsonに`types: ["node"]`と`typeRoots`を追加
+- 影響範囲（Impact）：
+  - docs：requirements.md、architecture.md、functional_spec.md、basic_design.md、00_INDEX.mdを更新
+  - コード：infra/lib/stacks/*.ts、packages/*、scripts/operation/*.sh、lambda/ec2-launcher/*
+  - データ：なし
+  - インフラ：パス参照の修正により、統合後のビルド・デプロイが正常に動作することを確認
+- 関連リンク：
+  - Plan Issue：#6
+  - Task Issue：#7, #8, #9, #10, #11, #12
+  - PR：なし（統合作業）
+  - Notion：docs/90_NOTION/20251228/notion.md
+- 検証（How to Verify）：
+  - 観点：ビルド確認、CDKのsynth確認、パス参照の確認
+  - 手順：
+    1. `npm install`を実行して依存関係のインストール確認
+    2. `npm run build`を実行してビルド確認
+    3. `npx cdk synth`を実行してCDKの構文チェック確認
+    4. パス参照が正しく動作することを確認
+  - 期待結果：
+    - `npm install`が正常に実行できる
+    - `npm run build`が正常に実行できる
+    - `npx cdk synth`が正常に実行できる（"Successfully synthesized"を確認）
+    - パス参照が正しく動作する
+- ロールバック方針（必要なら）：
+  - 統合に問題が発生した場合、元のリポジトリ（ouma-events-infra、ouma-family-event）に戻すことができる
+- 備考：
+  - 実際のデプロイ確認は実施していない（コード統合のみ）
+  - 実際のビルド・デプロイ時の動作確認は、build-lambda-layer.shやbuild-lambda.shを実行してから実施する必要がある
+
+### YYYY-MM-DD（vX / 変更ID: CHG-0002）
 - 種別：仕様変更 / 挙動変更 / 運用変更 / セキュリティ / パフォーマンス / リファクタ
 - 変更理由（Why）：
 - 変更概要（What）：

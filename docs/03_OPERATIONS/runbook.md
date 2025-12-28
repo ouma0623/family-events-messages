@@ -11,8 +11,8 @@
 
 ## 0. 前提情報（共通）
 
-- 対象プロジェクト：
-- 対象リポジトリ：
+- 対象プロジェクト：family-events-messages（統合プロジェクト）
+- 対象リポジトリ：https://github.com/ouma0623/family-events-messages
 - 想定実行者：
   - 運用担当
   - 開発者
@@ -25,8 +25,8 @@
 - 関連リンク：
   - docs hub：docs/00_INDEX.md
   - requirements：docs/01_REQUIREMENTS/requirements.md
-  - Plan Issue：#XXXX
-  - Notion：<URL>
+  - Plan Issue：#6
+  - Notion：docs/90_NOTION/20251228/notion.md
 
 ---
 
@@ -56,7 +56,15 @@
 
 | 名称 | パス | 目的 | 実行タイミング | 実行者 |
 |---|---|---|---|---|
-| | scripts/operation/ | | | |
+| deploy-backend.sh | scripts/operation/ | バックエンド（Lambda関数、API Gateway）のデプロイ | デプロイ時 | 開発者・運用担当 |
+| build-lambda.sh | scripts/operation/ | Lambda関数のビルド | ビルド時 | 開発者 |
+| build-batch-code.sh | scripts/operation/ | バッチコードのビルド | ビルド時 | 開発者 |
+| build-lambda-layer.sh | scripts/operation/ | Lambda Layerのビルド | ビルド時 | 開発者 |
+| deploy-frontend.sh | scripts/operation/ | フロントエンドのデプロイ | デプロイ時 | 開発者・運用担当 |
+| check-logs.sh | scripts/operation/ | ログ確認 | 運用時 | 運用担当 |
+| prepare-ami.sh | scripts/operation/ | AMI準備 | インフラ構築時 | 開発者 |
+| run-batch.sh | scripts/operation/ | バッチ実行 | バッチ実行時 | 運用担当 |
+| verify-build.sh | scripts/operation/ | ビルド検証 | ビルド後 | 開発者 | |
 
 ---
 

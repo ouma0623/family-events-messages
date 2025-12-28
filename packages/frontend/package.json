@@ -1,0 +1,38 @@
+{
+  "name": "@ouma-family-event/frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "@ouma-family-event/api": "*",
+    "@ouma-family-event/common": "*",
+    "amazon-cognito-identity-js": "^6.3.16",
+    "next": "^14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^5.5.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.11",
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "autoprefixer": "^10.4.23",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.1.0",
+    "jest": "^29.7.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.19",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.3"
+  }
+}

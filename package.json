@@ -1,4 +1,11 @@
 {
+  "name": "family-events-messages",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "infra",
+    "packages/*"
+  ],
   "devDependencies": {
     "@playwright/test": "^1.57.0"
   }

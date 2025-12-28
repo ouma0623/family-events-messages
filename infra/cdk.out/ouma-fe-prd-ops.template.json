@@ -1,0 +1,207 @@
+{
+ "Resources": {
+  "AlarmTopicD01E77F9": {
+   "Type": "AWS::SNS::Topic",
+   "Properties": {
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ],
+    "TopicName": "ouma-fe-prd-alarm"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-ops/AlarmTopic/Resource"
+   }
+  },
+  "AlarmTopicsyouma00kdsgmailcom5F658D6F": {
+   "Type": "AWS::SNS::Subscription",
+   "Properties": {
+    "Endpoint": "syouma00kds@gmail.com",
+    "Protocol": "email",
+    "TopicArn": {
+     "Ref": "AlarmTopicD01E77F9"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-ops/AlarmTopic/syouma00kds@gmail.com/Resource"
+   }
+  },
+  "AppLogGroup7D8CD952": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/ouma/fe/prd/api",
+    "RetentionInDays": 7,
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-ops/AppLogGroup/Resource"
+   }
+  },
+  "BatchLogGroupFA0EEAC1": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/ouma/fe/prd/batch",
+    "RetentionInDays": 7,
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-ops/BatchLogGroup/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/6WPTWvDMAyGf0t1HI7XpYNBj9thl+6zgx3KGG6sZm4dK9hySzH+7yNZUnLfSXqlR/ColOViIeczdQpFpQ+FNVuZ1qyqg1Cn8J2CCzJ9UGuqTQLu6rNqEJZwBflLPOxcvxPruA2VNy0bciPYQwLQ6ZaM4yG2npgqsrAEbJSxIGBnLKN/JWuq80BNR5+Gf54wBFXjPemR0Kj0CpnRv0WMU6OpSxaW6iDTiupHT7HdJLBDe/lDgEdG1+GwvOtSQ0dlLz4aA3s6Qxb/Oe7VRo2cu/QSuY2chSONch+uj+WtvCnlfLYPxhQ+OjYNyve/+gtwre0yqQEAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-ops/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "AlarmTopicArn": {
+   "Value": {
+    "Ref": "AlarmTopicD01E77F9"
+   }
+  },
+  "AppLogGroupName": {
+   "Value": {
+    "Ref": "AppLogGroup7D8CD952"
+   }
+  },
+  "BatchLogGroupName": {
+   "Value": {
+    "Ref": "BatchLogGroupFA0EEAC1"
+   }
+  },
+  "ExportsOutputFnGetAttAppLogGroup7D8CD952Arn3582BE94": {
+   "Value": {
+    "Fn::GetAtt": [
+     "AppLogGroup7D8CD952",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "ouma-fe-prd-ops:ExportsOutputFnGetAttAppLogGroup7D8CD952Arn3582BE94"
+   }
+  },
+  "ExportsOutputRefAppLogGroup7D8CD9527CC48D3E": {
+   "Value": {
+    "Ref": "AppLogGroup7D8CD952"
+   },
+   "Export": {
+    "Name": "ouma-fe-prd-ops:ExportsOutputRefAppLogGroup7D8CD9527CC48D3E"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

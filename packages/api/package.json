@@ -1,0 +1,29 @@
+{
+  "name": "@ouma-family-event/api",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest --passWithNoTests",
+    "lint": "eslint src/**/*.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.957.0",
+    "@aws-sdk/client-secrets-manager": "^3.957.0",
+    "@aws-sdk/lib-dynamodb": "^3.957.0",
+    "@ouma-family-event/common": "*",
+    "aws-jwt-verify": "^3.0.0",
+    "axios": "^1.13.2",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.159",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.11",
+    "@types/node": "^20.11.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.3.3"
+  }
+}

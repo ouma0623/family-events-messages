@@ -1,0 +1,36 @@
+{
+  "org": "ouma",
+  "system": "family-event",
+  "short": "fe",
+  "envName": "prd",
+  "region": "ap-northeast-1",
+  "account": "730335221037",
+  "domain": "oumasan.org",
+  "subdomains": {
+    "app": "app.oumasan.org",
+    "api": "api.oumasan.org",
+    "web": "web.oumasan.org"
+  },
+  "acmCertArn": "arn:aws:acm:ap-northeast-1:730335221037:certificate/3cf9773f-6c45-4ab5-bbed-6c41686620c6",
+  "acmCertArnCloudFront": "arn:aws:acm:us-east-1:730335221037:certificate/2cfb2ad4-2715-4ad2-90fe-f3e3322347d0",
+  "notifyEmail": "syouma00kds@gmail.com",
+  "dynamodb": {
+    "eventsTable": {
+      "billingMode": "PAY_PER_REQUEST"
+    },
+    "usersTable": {
+      "billingMode": "PAY_PER_REQUEST"
+    },
+    "summariesTable": {
+      "billingMode": "PAY_PER_REQUEST"
+    },
+    "cityGeoTable": {
+      "billingMode": "PAY_PER_REQUEST"
+    }
+  },
+  "bedrock": {
+    "modelId": "anthropic.claude-3-sonnet-20240229-v1:0",
+    "region": "us-east-1"
+  }
+}
+

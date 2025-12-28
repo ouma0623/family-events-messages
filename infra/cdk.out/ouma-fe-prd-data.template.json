@@ -1,0 +1,581 @@
+{
+ "Resources": {
+  "EventsTableD24865E5": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "eventId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "venueCity",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "startAt",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "venuePref",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "category",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "city-date-index",
+      "KeySchema": [
+       {
+        "AttributeName": "venueCity",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "startAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "pref-date-index",
+      "KeySchema": [
+       {
+        "AttributeName": "venuePref",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "startAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "category-date-index",
+      "KeySchema": [
+       {
+        "AttributeName": "category",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "startAt",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "eventId",
+      "KeyType": "HASH"
+     }
+    ],
+    "PointInTimeRecoverySpecification": {
+     "PointInTimeRecoveryEnabled": true
+    },
+    "TableName": "ouma-fe-prd-events",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-data/EventsTable/Resource"
+   }
+  },
+  "UsersTable9725E9C8": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "userId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "lineUserId",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "notifyEnabled",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "GlobalSecondaryIndexes": [
+     {
+      "IndexName": "line-user-index",
+      "KeySchema": [
+       {
+        "AttributeName": "lineUserId",
+        "KeyType": "HASH"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     },
+     {
+      "IndexName": "notify-enabled-index",
+      "KeySchema": [
+       {
+        "AttributeName": "notifyEnabled",
+        "KeyType": "HASH"
+       },
+       {
+        "AttributeName": "userId",
+        "KeyType": "RANGE"
+       }
+      ],
+      "Projection": {
+       "ProjectionType": "ALL"
+      }
+     }
+    ],
+    "KeySchema": [
+     {
+      "AttributeName": "userId",
+      "KeyType": "HASH"
+     }
+    ],
+    "TableName": "ouma-fe-prd-users",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-data/UsersTable/Resource"
+   }
+  },
+  "SummariesTable8DD3746B": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "eventId",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "eventId",
+      "KeyType": "HASH"
+     }
+    ],
+    "TableName": "ouma-fe-prd-summaries",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-data/SummariesTable/Resource"
+   }
+  },
+  "CityGeoTable6C087845": {
+   "Type": "AWS::DynamoDB::Table",
+   "Properties": {
+    "AttributeDefinitions": [
+     {
+      "AttributeName": "city",
+      "AttributeType": "S"
+     },
+     {
+      "AttributeName": "pref",
+      "AttributeType": "S"
+     }
+    ],
+    "BillingMode": "PAY_PER_REQUEST",
+    "KeySchema": [
+     {
+      "AttributeName": "city",
+      "KeyType": "HASH"
+     },
+     {
+      "AttributeName": "pref",
+      "KeyType": "RANGE"
+     }
+    ],
+    "TableName": "ouma-fe-prd-citygeo",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Retain",
+   "DeletionPolicy": "Retain",
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-data/CityGeoTable/Resource"
+   }
+  },
+  "LineSecret5EEE27B8": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "LINE authentication credentials",
+    "GenerateSecretString": {
+     "ExcludeCharacters": "",
+     "GenerateStringKey": "dummy",
+     "SecretStringTemplate": "{\"channelAccessToken\":\"PLACEHOLDER\",\"channelSecret\":\"PLACEHOLDER\",\"lineLoginChannelId\":\"PLACEHOLDER\",\"lineLoginChannelSecret\":\"PLACEHOLDER\"}"
+    },
+    "Name": "ouma-fe-prd/line",
+    "Tags": [
+     {
+      "Key": "CostCenter",
+      "Value": "training"
+     },
+     {
+      "Key": "Env",
+      "Value": "prd"
+     },
+     {
+      "Key": "ManagedBy",
+      "Value": "cdk"
+     },
+     {
+      "Key": "Org",
+      "Value": "ouma"
+     },
+     {
+      "Key": "Owner",
+      "Value": "ouma0623"
+     },
+     {
+      "Key": "System",
+      "Value": "family-event"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-data/LineSecret/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/91SwU7DMAz9FnxEWYDBqTeEJoQQMNpxQBOa3MSMjDSpEndQRf131BaxiSMSHDhEtp/97OckUzk9PZXHB/gWJ0q/TqwpZSoY1avAt7hKunVYeV3KtMDS0jIB9/YWK4IMDkFAjYENG++uqYUsgduluK17t4BOQGmsNW5943UPzc8fV/NZvspn9w+zYgECAlV+i3burVEtZBCI0bi+vzeOr9zCVJST8lsKLWQcGupEAtT60voSbUHKO42hvXKa3iFbJjC99yW0e/qL+r+9nP+50Q8nRh/4dzQ9iYtnN3z/TkRSgThW6HBNQaZiiJcJxsSebE1RBVP3wj+RNTkKyDRyCg7GrXu5cS9eUFVbZPpOGZLDegNO78o2mi5eMKBiCnF8sVHq2L/rRE7RN0HRcuDszlB113DdcCec1yQ38Wg7PZMnU3l8sInGTELj2FQk89F+AF6MGNYnBAAA"
+   },
+   "Metadata": {
+    "aws:cdk:path": "ouma-fe-prd-data/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "EventsTableName": {
+   "Value": {
+    "Ref": "EventsTableD24865E5"
+   }
+  },
+  "UsersTableName": {
+   "Value": {
+    "Ref": "UsersTable9725E9C8"
+   }
+  },
+  "SummariesTableName": {
+   "Value": {
+    "Ref": "SummariesTable8DD3746B"
+   }
+  },
+  "CityGeoTableName": {
+   "Value": {
+    "Ref": "CityGeoTable6C087845"
+   }
+  },
+  "LineSecretName": {
+   "Value": {
+    "Fn::Join": [
+     "-",
+     [
+      {
+       "Fn::Select": [
+        0,
+        {
+         "Fn::Split": [
+          "-",
+          {
+           "Fn::Select": [
+            6,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "LineSecret5EEE27B8"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "Fn::Select": [
+        1,
+        {
+         "Fn::Split": [
+          "-",
+          {
+           "Fn::Select": [
+            6,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "LineSecret5EEE27B8"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "Fn::Select": [
+        2,
+        {
+         "Fn::Split": [
+          "-",
+          {
+           "Fn::Select": [
+            6,
+            {
+             "Fn::Split": [
+              ":",
+              {
+               "Ref": "LineSecret5EEE27B8"
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    ]
+   }
+  },
+  "ExportsOutputFnGetAttEventsTableD24865E5Arn2808B4A2": {
+   "Value": {
+    "Fn::GetAtt": [
+     "EventsTableD24865E5",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "ouma-fe-prd-data:ExportsOutputFnGetAttEventsTableD24865E5Arn2808B4A2"
+   }
+  },
+  "ExportsOutputFnGetAttUsersTable9725E9C8Arn5684EF99": {
+   "Value": {
+    "Fn::GetAtt": [
+     "UsersTable9725E9C8",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "ouma-fe-prd-data:ExportsOutputFnGetAttUsersTable9725E9C8Arn5684EF99"
+   }
+  },
+  "ExportsOutputFnGetAttSummariesTable8DD3746BArn9A8AE2C3": {
+   "Value": {
+    "Fn::GetAtt": [
+     "SummariesTable8DD3746B",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "ouma-fe-prd-data:ExportsOutputFnGetAttSummariesTable8DD3746BArn9A8AE2C3"
+   }
+  },
+  "ExportsOutputFnGetAttCityGeoTable6C087845Arn66A11085": {
+   "Value": {
+    "Fn::GetAtt": [
+     "CityGeoTable6C087845",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "ouma-fe-prd-data:ExportsOutputFnGetAttCityGeoTable6C087845Arn66A11085"
+   }
+  },
+  "ExportsOutputRefLineSecret5EEE27B8671C702C": {
+   "Value": {
+    "Ref": "LineSecret5EEE27B8"
+   },
+   "Export": {
+    "Name": "ouma-fe-prd-data:ExportsOutputRefLineSecret5EEE27B8671C702C"
+   }
+  },
+  "ExportsOutputRefEventsTableD24865E55C5ECA9E": {
+   "Value": {
+    "Ref": "EventsTableD24865E5"
+   },
+   "Export": {
+    "Name": "ouma-fe-prd-data:ExportsOutputRefEventsTableD24865E55C5ECA9E"
+   }
+  },
+  "ExportsOutputRefUsersTable9725E9C857961836": {
+   "Value": {
+    "Ref": "UsersTable9725E9C8"
+   },
+   "Export": {
+    "Name": "ouma-fe-prd-data:ExportsOutputRefUsersTable9725E9C857961836"
+   }
+  },
+  "ExportsOutputRefSummariesTable8DD3746B81270BC5": {
+   "Value": {
+    "Ref": "SummariesTable8DD3746B"
+   },
+   "Export": {
+    "Name": "ouma-fe-prd-data:ExportsOutputRefSummariesTable8DD3746B81270BC5"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"dkan.d.ts","sourceRoot":"","sources":["../../src/fetchers/dkan.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAEH,OAAO,EAAE,WAAW,EAAE,MAAM,QAAQ,CAAC;AAMrC;;GAEG;AACH,qBAAa,WAAY,SAAQ,WAAW;IAC1C;;OAEG;IACG,KAAK,IAAI,OAAO,CAAC,MAAM,CAAC;IAiB9B;;OAEG;YACW,iBAAiB;IA4B/B;;OAEG;IACH,OAAO,CAAC,mBAAmB;CAsB5B"}

@@ -1,0 +1,36 @@
+{
+  "version": "48.0.0",
+  "files": {
+    "7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200": {
+      "displayName": "ouma-fe-prd-network/Custom::VpcRestrictDefaultSGCustomResourceProvider Code",
+      "source": {
+        "path": "asset.7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "730335221037-ap-northeast-1-2f50f75d": {
+          "bucketName": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+          "objectKey": "7fa1e366ee8a9ded01fc355f704cff92bfd179574e6f9cfee800a3541df1b200.zip",
+          "region": "ap-northeast-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::730335221037:role/cdk-hnb659fds-file-publishing-role-730335221037-ap-northeast-1"
+        }
+      }
+    },
+    "5e020c66a660f762f2d04c534086900ee32002ce76147bd3a4c5984cd689f217": {
+      "displayName": "ouma-fe-prd-network Template",
+      "source": {
+        "path": "ouma-fe-prd-network.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "730335221037-ap-northeast-1-6399b6ea": {
+          "bucketName": "cdk-hnb659fds-assets-730335221037-ap-northeast-1",
+          "objectKey": "5e020c66a660f762f2d04c534086900ee32002ce76147bd3a4c5984cd689f217.json",
+          "region": "ap-northeast-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::730335221037:role/cdk-hnb659fds-file-publishing-role-730335221037-ap-northeast-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

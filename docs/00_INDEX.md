@@ -9,16 +9,22 @@
 ## 1. プロジェクト固有（下書きOK：/planで埋まっていく）
 
 ### 1.1 状態
-- フェーズ：Plan / Do / Check / Action（該当を残す）
-- 最終更新日：YYYY-MM-DD
+- フェーズ：Action（完了）
+- 最終更新日：2025-12-28
 
 ### 1.2 GitHub（状態機械）
-- 親Plan Issue：#XXXX
-- 子Task Issues：#YYYY, #ZZZZ
+- 親Plan Issue：#6（https://github.com/ouma0623/family-events-messages/issues/6）
+- 子Task Issues：
+  - #8（T-01：インフラコードの統合（ouma-events-infra → family-events-messages/infra））
+  - #9（T-02：アプリケーションコードの統合（ouma-family-event/packages → family-events-messages/packages））
+  - #10（T-03：スクリプト・Lambda関数の統合（ouma-family-event/scripts, lambda → family-events-messages））
+  - #7（T-04：パス参照の修正（app-stack.ts、バッチファイル））
+  - #11（T-05：動作確認（ビルド確認、動作確認））
+  - #12（T-06：ドキュメントの新規作成（docs配下））
 - 関連PR：URL（必要に応じて）
 
 ### 1.3 Notion（最終まとめ）
-- Notion PJページ：<URL>
+- Notion PJページ：docs/90_NOTION/20251228/notion.md（作成済み）
 
 ---
 
