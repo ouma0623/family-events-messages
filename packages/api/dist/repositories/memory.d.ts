@@ -23,6 +23,10 @@ export declare class MemoryEventRepository implements EventRepository {
      */
     getById(eventId: string): Promise<EventNormalized | null>;
     /**
+     * 全イベントを削除（洗い替え用）
+     */
+    deleteAll(): Promise<void>;
+    /**
      * 週末おすすめイベントを取得
      */
     listWeekendRecommendations(userPref: UserPreference): Promise<EventNormalized[]>;

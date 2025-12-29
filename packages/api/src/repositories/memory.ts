@@ -77,6 +77,13 @@ export class MemoryEventRepository implements EventRepository {
   }
 
   /**
+   * 全イベントを削除（洗い替え用）
+   */
+  async deleteAll(): Promise<void> {
+    this.events.clear();
+  }
+
+  /**
    * 週末おすすめイベントを取得
    */
   async listWeekendRecommendations(userPref: UserPreference): Promise<EventNormalized[]> {

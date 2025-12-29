@@ -11,10 +11,6 @@ const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
  * DynamoDB実装
  */
 class DynamoDBEventRepository {
-    client;
-    eventsTableName;
-    usersTableName;
-    summariesTableName;
     constructor() {
         const dynamoClient = new client_dynamodb_1.DynamoDBClient({});
         this.client = lib_dynamodb_1.DynamoDBDocumentClient.from(dynamoClient);
@@ -28,10 +24,17 @@ class DynamoDBEventRepository {
     async upsertMany(events) {
         if (events.length === 0)
             return;
+        // 重複を除去（eventIdで）
+        const uniqueEvents = Array.from(new Map(events.map(event => [event.eventId, event])).values());
+        if (uniqueEvents.length === 0) {
+            console.log('[upsertMany] 重複除去後、保存するイベントがありません');
+            return;
+        }
+        console.log(`[upsertMany] 重複除去: ${events.length}件 → ${uniqueEvents.length}件`);
         // BatchWriteItemは25件まで
         const batches = [];
-        for (let i = 0; i < events.length; i += 25) {
-            batches.push(events.slice(i, i + 25));
+        for (let i = 0; i < uniqueEvents.length; i += 25) {
+            batches.push(uniqueEvents.slice(i, i + 25));
         }
         for (const batch of batches) {
             await this.client.send(new lib_dynamodb_1.BatchWriteCommand({
@@ -479,6 +482,48 @@ class DynamoDBEventRepository {
             }
         });
         return Array.from(usersMap.values());
+    }
+    /**
+     * 全イベントを削除（洗い替え用）
+     */
+    async deleteAll() {
+        let lastEvaluatedKey = undefined;
+        let totalDeleted = 0;
+        do {
+            // スキャンでイベントを取得
+            const scanParams = {
+                TableName: this.eventsTableName,
+                Limit: 100,
+            };
+            if (lastEvaluatedKey) {
+                scanParams.ExclusiveStartKey = lastEvaluatedKey;
+            }
+            const scanResult = await this.client.send(new lib_dynamodb_1.ScanCommand(scanParams));
+            const items = scanResult.Items || [];
+            if (items.length > 0) {
+                // バッチ削除（最大25件ずつ）
+                const batchSize = 25;
+                for (let i = 0; i < items.length; i += batchSize) {
+                    const batch = items.slice(i, i + batchSize);
+                    const deleteRequests = batch.map((item) => ({
+                        DeleteRequest: {
+                            Key: {
+                                eventId: item.eventId,
+                            },
+                        },
+                    }));
+                    await this.client.send(new lib_dynamodb_1.BatchWriteCommand({
+                        RequestItems: {
+                            [this.eventsTableName]: deleteRequests,
+                        },
+                    }));
+                    totalDeleted += batch.length;
+                    console.log(`[deleteAll] 削除: ${totalDeleted}件`);
+                }
+            }
+            lastEvaluatedKey = scanResult.LastEvaluatedKey;
+        } while (lastEvaluatedKey);
+        console.log(`[deleteAll] 削除完了: 合計 ${totalDeleted}件`);
     }
 }
 exports.DynamoDBEventRepository = DynamoDBEventRepository;

@@ -64,7 +64,61 @@
   - 実際のデプロイ確認は実施していない（コード統合のみ）
   - 実際のビルド・デプロイ時の動作確認は、build-lambda-layer.shやbuild-lambda.shを実行してから実施する必要がある
 
-### YYYY-MM-DD（vX / 変更ID: CHG-0002）
+### 2025-12-28（v2 / 変更ID: CHG-0002）
+- 種別：挙動変更 / 運用変更
+- 変更理由（Why）：
+  - 統合後のシステム（フロントエンド・バックエンド・インフラ）が正常にデプロイ・動作することを確認するため
+  - デプロイスクリプトが統合後の環境に合わせて修正され、正常に動作することを確認するため
+- 変更概要（What）：
+  - デプロイスクリプトのパス参照を統合後の環境に合わせて修正（`PROJECT_ROOT`を`../..`に統一）
+  - `scripts/operation/deploy-backend.sh`の`PROJECT_ROOT`パス参照を修正
+  - `scripts/operation/deploy-frontend.sh`の`PROJECT_ROOT`パス参照を修正
+  - `scripts/operation/build-lambda.sh`の`PROJECT_ROOT`パス参照を修正
+  - `scripts/operation/build-batch-code.sh`の`PROJECT_ROOT`パス参照を修正
+  - `scripts/operation/build-lambda-layer.sh`の`PROJECT_ROOT`パス参照を修正、EOF構文エラーを修正
+  - インフラのデプロイ（NetworkStack、DataStack、OpsStack、AppStack）
+  - バックエンドのデプロイ（Lambda関数、API Gateway）
+  - フロントエンドのデプロイ（CloudFront + S3）
+  - Lambdaバッチの動作確認（weekly-ingest、friday-notify）
+  - EC2スポットインスタンスの起動確認
+  - フロントエンド・バックエンドの動作確認
+- 影響範囲（Impact）：
+  - docs：requirements.md、changes.md、runbook.md、00_INDEX.mdを更新
+  - コード：scripts/operation/*.sh（パス参照修正）
+  - データ：なし（動作確認のみ）
+  - インフラ：CDKスタックのデプロイ、Lambda関数のデプロイ、API Gatewayのデプロイ、CloudFront + S3のデプロイ
+- 関連リンク：
+  - Plan Issue：#13
+  - Task Issue：#14, #15, #16, #17, #18, #19, #20, #21, #22
+  - PR：なし（デプロイ・動作確認のみ）
+  - Notion：docs/90_NOTION/20251228/notion.md
+- 検証（How to Verify）：
+  - 観点：デプロイスクリプトのパス参照が正しく動作するか、システム全体が正常に動作するか
+  - 手順：
+    1. デプロイスクリプトのパス参照を確認・修正
+    2. インフラのデプロイ（CDKスタック）
+    3. バックエンドのデプロイ（Lambda関数、API Gateway）
+    4. フロントエンドのデプロイ（CloudFront + S3）
+    5. Lambdaバッチの動作確認
+    6. EC2スポットインスタンスの起動確認
+    7. フロントエンド・バックエンドの動作確認
+  - 期待結果：
+    - デプロイスクリプトが正常に実行できる
+    - インフラリソースが正常に作成される
+    - Lambda関数が正常にデプロイされる
+    - API Gatewayが正常にデプロイされる
+    - フロントエンドが正常に表示される
+    - バックエンドAPIが正常に動作する
+    - Lambdaバッチが正常に実行される
+    - EC2スポットインスタンスが正常に起動する
+- ロールバック方針（必要なら）：
+  - デプロイエラーが発生した場合、前回のデプロイ状態に戻すことができる
+- 備考：
+  - すべてのタスクが正常に完了し、システム全体が正常に動作していることを確認した
+  - DynamoDBに185件のイベントデータが存在していることを確認した
+  - EC2スポットインスタンスが正常に起動し、バッチ処理が実行された後に自動的に終了することを確認した
+
+### YYYY-MM-DD（vX / 変更ID: CHG-0003）
 - 種別：仕様変更 / 挙動変更 / 運用変更 / セキュリティ / パフォーマンス / リファクタ
 - 変更理由（Why）：
 - 変更概要（What）：

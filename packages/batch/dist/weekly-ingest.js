@@ -11,9 +11,23 @@ const ingestion_1 = require("@ouma-family-event/ingestion");
 /**
  * 週次収集バッチを実行
  */
-async function runWeeklyIngest(repository, enableDiscovery = false) {
+async function runWeeklyIngest(repository, enableDiscovery = false, clearExisting = true) {
     const sources = (0, common_1.getAllSources)();
     const results = [];
+    // 既存データの削除（洗い替え）
+    if (clearExisting) {
+        try {
+            ingestion_1.errorHandler.info('Deleting all existing events before ingestion', {});
+            await repository.deleteAll();
+            ingestion_1.errorHandler.info('All existing events deleted', {});
+        }
+        catch (error) {
+            const errorMessage = error?.message || error?.toString() || String(error);
+            ingestion_1.errorHandler.warn('Failed to delete existing events, continuing with ingestion', {
+                error: errorMessage,
+            });
+        }
+    }
     for (const source of sources) {
         const result = {
             sourceId: source.sourceId,

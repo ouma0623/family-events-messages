@@ -9,22 +9,29 @@
 ## 1. プロジェクト固有（下書きOK：/planで埋まっていく）
 
 ### 1.1 状態
-- フェーズ：Action（完了）
+- フェーズ：Action（統合システムのデプロイ・動作確認）
 - 最終更新日：2025-12-28
 
 ### 1.2 GitHub（状態機械）
-- 親Plan Issue：#6（https://github.com/ouma0623/family-events-messages/issues/6）
-- 子Task Issues：
-  - #8（T-01：インフラコードの統合（ouma-events-infra → family-events-messages/infra））
-  - #9（T-02：アプリケーションコードの統合（ouma-family-event/packages → family-events-messages/packages））
-  - #10（T-03：スクリプト・Lambda関数の統合（ouma-family-event/scripts, lambda → family-events-messages））
-  - #7（T-04：パス参照の修正（app-stack.ts、バッチファイル））
-  - #11（T-05：動作確認（ビルド確認、動作確認））
-  - #12（T-06：ドキュメントの新規作成（docs配下））
+- 親Plan Issue：
+  - #6（https://github.com/ouma0623/family-events-messages/issues/6）- 統合プロジェクト（完了）
+  - #13（https://github.com/ouma0623/family-events-messages/issues/13）- 統合システムのデプロイ・動作確認（完了）
+- 子Task Issues（Plan #13）：
+  - #14（T-01：デプロイスクリプトの修正）- 完了
+  - #15（T-02：インフラのデプロイ）- 完了
+  - #16（T-03：バックエンドのデプロイ）- 完了
+  - #17（T-04：フロントエンドのデプロイ）- 完了
+  - #18（T-05：Lambdaバッチの動作確認）- 完了
+  - #19（T-06：EC2スポットインスタンスの起動確認）- 完了
+  - #20（T-07：フロントエンドの動作確認）- 完了
+  - #21（T-08：バックエンドAPIの動作確認）- 完了
+  - #22（T-09：データ収集バッチの実行）- 完了
 - 関連PR：URL（必要に応じて）
 
 ### 1.3 Notion（最終まとめ）
-- Notion PJページ：docs/90_NOTION/20251228/notion.md（作成済み）
+- Notion PJページ：
+  - docs/90_NOTION/20251228/notion.md（統合プロジェクト）
+  - docs/90_NOTION/20251228/notion-deployment.md（デプロイ・動作確認）
 
 ---
 

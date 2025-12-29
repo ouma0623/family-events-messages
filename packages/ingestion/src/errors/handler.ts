@@ -83,7 +83,7 @@ export class ErrorHandler {
    */
   info(message: string, context?: { sourceId?: string; eventId?: string; error?: string }): void {
     // infoレベルはコンソールに出力のみ（ファイルには出力しない）
-    console.log(`[INFO] ${message}`, context || '');
+    console.log(`[INFO] ${message}`, context || {});
   }
 
   /**

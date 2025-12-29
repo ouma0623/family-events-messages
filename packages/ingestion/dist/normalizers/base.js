@@ -9,7 +9,6 @@ const common_1 = require("@ouma-family-event/common");
  * 正規化のベースクラス
  */
 class BaseNormalizer {
-    source;
     constructor(source) {
         this.source = source;
     }

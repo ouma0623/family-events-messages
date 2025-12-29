@@ -38,6 +38,14 @@ export declare class ErrorHandler {
      */
     log(entry: Omit<ErrorLogEntry, 'timestamp'>): void;
     /**
+     * 情報ログを出力
+     */
+    info(message: string, context?: {
+        sourceId?: string;
+        eventId?: string;
+        error?: string;
+    }): void;
+    /**
      * 警告ログを出力
      */
     warn(message: string, context?: {

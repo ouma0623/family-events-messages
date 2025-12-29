@@ -18,5 +18,5 @@ export interface IngestResult {
 /**
  * 週次収集バッチを実行
  */
-export declare function runWeeklyIngest(repository: EventRepository, enableDiscovery?: boolean): Promise<IngestResult[]>;
+export declare function runWeeklyIngest(repository: EventRepository, enableDiscovery?: boolean, clearExisting?: boolean): Promise<IngestResult[]>;
 //# sourceMappingURL=weekly-ingest.d.ts.map

@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST='{"lib/api.ts -> ./cognito":{"id":5453,"files":["static/chunks/845-96083e1dce1e5b3d.js","static/chunks/417.fb994979db601f97.js"]}}';
+self.__REACT_LOADABLE_MANIFEST='{"lib/api.ts -> ./cognito":{"id":5453,"files":["static/chunks/845-0035dd730388aed4.js","static/chunks/417.fb994979db601f97.js"]}}';

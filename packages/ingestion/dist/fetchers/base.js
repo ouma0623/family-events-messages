@@ -13,9 +13,8 @@ const retry_1 = require("../errors/retry");
  * フェッチャーのベースクラス
  */
 class BaseFetcher {
-    source;
-    userAgent = 'TokaiKidsEvents/1.0';
     constructor(source) {
+        this.userAgent = 'TokaiKidsEvents/1.0';
         this.source = source;
     }
     /**

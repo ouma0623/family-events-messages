@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # 設定
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 ASSETS_DIR="${PROJECT_ROOT}/assets"
 LAYER_DIR="${ASSETS_DIR}/layer"
 
@@ -56,11 +56,11 @@ cat > package.json <<'EOF'
     "csv-parse": "^5.5.0",
     "xml2js": "^0.6.2",
     "@xmldom/xmldom": "^0.9.0",
-       "xpath": "^0.0.33",
-       "iconv-lite": "^0.6.3"
-     }
-   }
-   EOF
+    "xpath": "^0.0.33",
+    "iconv-lite": "^0.6.3"
+  }
+}
+EOF
 
 # 依存関係をインストール
 log_info "依存関係をインストールしています..."

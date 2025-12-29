@@ -1,4 +1,4 @@
-// File: /home/oumasan/work/ouma-family-event/packages/frontend/src/app/settings/page.tsx
+// File: /home/oumasan/work/family-events-messages/packages/frontend/src/app/settings/page.tsx
 import * as entry from '../../../../src/app/settings/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

@@ -7,13 +7,13 @@
 ---
 
 ## 0. メタ情報（プロジェクト固有）
-- プロジェクト名：family-events-messages（統合プロジェクト）
+- プロジェクト名：family-events-messages（統合システムのデプロイ・動作確認）
 - 対象期間（任意）：
 - オーナー（任意）：ouma0623
-- 最終更新日：2025-01-27
+- 最終更新日：2025-01-28
 - 関連（リンク）
   - docs hub：`docs/00_INDEX.md`
-  - Plan Issue：#6（https://github.com/ouma0623/family-events-messages/issues/6）
+  - Plan Issue：#13（作成予定）
   - Notion：<URL>（作成予定）
   - Github Repository：https://github.com/ouma0623/family-events-messages
 
@@ -21,29 +21,31 @@
 
 ## 1. 背景（Background）
 - 現状の課題：
-  - インフラコード（ouma-events-infra）とアプリケーションコード（ouma-family-event）が別リポジトリに分散している
-  - ドキュメントが複数ディレクトリに散在し、管理が困難
-  - 開発・運用時の参照先が不明確
+  - 統合後のシステム（フロントエンド・バックエンド・インフラ）が正常にデプロイ・動作するか未確認
+  - デプロイスクリプトが統合後の環境に合わせて修正されているか未確認
+  - 既存の機能が正常に動作するか未確認
+  - データが存在しない場合の動作が未確認
 - 何が困っているか：
-  - コードとドキュメントの整合性を保つのが困難
-  - 変更時の影響範囲把握が難しい
-  - 新規メンバーのオンボーディングが困難
+  - 統合後のシステムが本番環境で正常に動作するか不安
+  - デプロイ手順が正しく動作するか不安
+  - バッチ処理が正常に実行できるか不安
 - なぜ今やるか（機会・リスク）：
-  - 統合により、コードとドキュメントの一元管理が可能になる
-  - docs配下のテンプレートに基づいた統一的なドキュメント管理が可能になる
-  - 開発効率と保守性の向上が期待できる
+  - 統合後のシステムを本番環境にデプロイする前に、動作確認が必要
+  - デプロイスクリプトの修正が必要な可能性がある
+  - データが存在しない場合の動作を確認する必要がある
 
 ---
 
 ## 2. 目的（Goal / Why）
 - 達成したい状態：
-  - インフラコードとアプリケーションコードを単一リポジトリ（family-events-messages）に統合
-  - docs配下のテンプレートに基づいた統一的なドキュメント構造を確立
-  - 既存の動作を維持したまま、コードとドキュメントの整合性を確保
+  - 統合後のシステム（フロントエンド・バックエンド・インフラ）が本番環境に正常にデプロイできる
+  - デプロイスクリプトが統合後の環境に合わせて修正され、正常に動作する
+  - 既存の機能が正常に動作することを確認できる
+  - データが存在しない場合でも、収集バッチを実行してデータを取得できる
 - 成果の使われ方（誰が/いつ/何のために）：
-  - 開発者：コードとドキュメントを一箇所で参照できる
-  - 運用者：統合されたリポジトリから運用手順を確認できる
-  - 新規メンバー：docs/00_INDEX.mdから全体像を把握できる
+  - 開発者：統合後のシステムを本番環境にデプロイする際の手順を確認できる
+  - 運用者：統合後のシステムの動作確認手順を参照できる
+  - 新規メンバー：システムの動作確認方法を理解できる
 
 ---
 
@@ -52,61 +54,83 @@
 
 ### 3.1 対象（In Scope）
 - 対象機能：
-  - ouma-events-infraのインフラコード（CDKスタック）の統合
-  - ouma-family-eventのアプリケーションコード（packages/*）の統合
-  - ouma-family-eventのバッチファイル・スクリプトの統合
-  - ouma-family-eventのLambda関数コードの統合
-  - docs配下での新規ドキュメント作成（既存ドキュメントは統合しない）
+  - インフラのデプロイ（CDKスタックのデプロイ）
+  - バックエンドのデプロイ（Lambda関数、API Gatewayのデプロイ）
+  - フロントエンドのデプロイ（CloudFront + S3へのデプロイ）
+  - Lambdaバッチの動作確認（weekly-ingest、friday-notify）
+  - EC2スポットインスタンスの起動確認（ec2-launcher Lambda関数）
+  - EC2からのバッチ実行確認（weekly-ingest、friday-notify）
+  - フロントエンドの動作確認（イベント一覧表示、検索機能等）
+  - バックエンドAPIの動作確認（イベント検索API、イベント詳細API等）
 - 対象データ：
-  - コードファイル（.ts, .js, .json等）
-  - 設定ファイル（package.json, tsconfig.json等）
-  - バッチファイル・スクリプト（.sh, .js等）
+  - DynamoDBテーブル（events, users, summaries, cityGeo）
+  - テストデータ（データが存在しない場合に投入）
 - 対象画面/API：
-  - 統合対象外（既存の動作を維持するため）
+  - フロントエンド：トップページ、イベント検索ページ、設定ページ
+  - バックエンドAPI：`/api/v1/events`、`/api/v1/events/:id`、`/api/v1/users/settings`等
 - 対象環境（dev/stg/prodなど）：
-  - すべての環境で動作確認済みのコードを統合
+  - prd環境（環境は1つしかない）
 - 対象リポジトリ/ディレクトリ：
-  - 統合元：`~/work/ouma-events-infra/` → `family-events-messages/infra/`
-  - 統合元：`~/work/ouma-family-event/packages/*` → `family-events-messages/packages/*`
-  - 統合元：`~/work/ouma-family-event/scripts/*` → `family-events-messages/scripts/*`
-  - 統合元：`~/work/ouma-family-event/lambda/*` → `family-events-messages/lambda/*`
-  - 統合先：`~/work/family-events-messages/`
+  - `~/work/family-events-messages/`
+  - デプロイスクリプト：`scripts/operation/deploy-backend.sh`、`scripts/operation/deploy-frontend.sh`
+  - バッチ実行スクリプト：`scripts/operation/run-batch.sh`
 
 ### 3.2 対象外（Out of Scope）
 - 今回やらないこと：
-  - 既存ドキュメント（ouma-family-event/doc/*, ouma-family-event/doc_work/*）の統合
-  - 既存の動作・機能の変更
-  - インフラリソースの再デプロイ（コード統合のみ）
-  - テストコードの追加・変更（既存のテストは統合）
+  - 新機能の追加・変更
+  - 既存機能の変更
+  - E2Eテストの自動化
+  - 動画形式での記録
+  - パフォーマンステスト（負荷テスト）
 - 将来対応に回すこと：
-  - 統合後のリファクタリング
-  - ドキュメントの詳細化
-  - テストカバレッジの向上
+  - 自動化されたE2Eテストの追加
+  - CI/CDパイプラインの構築
+  - パフォーマンステストの実施
 
 ---
 
 ## 4. ユースケース / 利用シナリオ（Use Cases）
 > 「誰が」「何を」「どうしたい」を簡潔に列挙する。
 
-- UC-01：インフラコードの統合
-  - 利用者：開発者
-  - 操作/入力：ouma-events-infraのCDKスタックコードをfamily-events-messages/infra/に統合
-  - 期待結果：統合後も既存のインフラが正常に動作する
-
-- UC-02：アプリケーションコードの統合
-  - 利用者：開発者
-  - 操作/入力：ouma-family-eventのpackages/*をfamily-events-messages/packages/*に統合
-  - 期待結果：統合後も既存のアプリケーションが正常に動作する
-
-- UC-03：スクリプト・バッチファイルの統合
+- UC-01：インフラのデプロイ
   - 利用者：開発者・運用者
-  - 操作/入力：ouma-family-eventのscripts/*とlambda/*をfamily-events-messagesに統合
-  - 期待結果：統合後も既存のスクリプト・Lambda関数が正常に動作する
+  - 操作/入力：CDKスタックをデプロイする
+  - 期待結果：インフラリソース（VPC、DynamoDB、Lambda関数、API Gateway等）が正常に作成される
 
-- UC-04：ドキュメントの新規作成
+- UC-02：バックエンドのデプロイ
   - 利用者：開発者・運用者
-  - 操作/入力：docs配下のテンプレートに基づいて新規ドキュメントを作成
-  - 期待結果：統一的なドキュメント構造が確立され、参照しやすくなる
+  - 操作/入力：Lambda関数とAPI Gatewayをデプロイする
+  - 期待結果：バックエンドAPIが正常に動作する
+
+- UC-03：フロントエンドのデプロイ
+  - 利用者：開発者・運用者
+  - 操作/入力：Next.jsアプリケーションをビルドしてS3にアップロードし、CloudFrontキャッシュを無効化する
+  - 期待結果：フロントエンドが正常に表示される
+
+- UC-04：Lambdaバッチの動作確認
+  - 利用者：開発者・運用者
+  - 操作/入力：weekly-ingestバッチ、friday-notifyバッチを実行する
+  - 期待結果：バッチが正常に実行され、期待通りの結果が得られる
+
+- UC-05：EC2スポットインスタンスの起動確認
+  - 利用者：開発者・運用者
+  - 操作/入力：ec2-launcher Lambda関数を実行してEC2スポットインスタンスを起動する
+  - 期待結果：EC2スポットインスタンスが正常に起動し、バッチが実行される
+
+- UC-06：フロントエンドの動作確認
+  - 利用者：開発者・運用者
+  - 操作/入力：ブラウザでフロントエンドにアクセスし、イベント一覧を表示する
+  - 期待結果：イベント一覧が正常に表示される
+
+- UC-07：バックエンドAPIの動作確認
+  - 利用者：開発者・運用者
+  - 操作/入力：API Gateway経由でイベント検索APIを呼び出す
+  - 期待結果：イベント検索結果が正常に返される
+
+- UC-08：データ収集バッチの実行
+  - 利用者：開発者・運用者
+  - 操作/入力：weekly-ingestバッチを実行して外部ソースからデータを取得する
+  - 期待結果：外部ソースからデータが正常に取得され、DynamoDBに保存される
 
 ---
 
@@ -115,59 +139,132 @@
 ### 5.1 機能要件（Functional）
 > 実装対象となる要件。曖昧さを残さない。
 
-- FR-01：インフラコードの統合
-  - 説明：ouma-events-infraのCDKスタックコード（lib/stacks/*.ts）をfamily-events-messages/infra/lib/stacks/に統合する
-  - 入力：ouma-events-infra/lib/stacks/*.ts、ouma-events-infra/lib/*.ts、ouma-events-infra/bin/*.ts
-  - 出力：family-events-messages/infra/lib/stacks/*.ts、family-events-messages/infra/lib/*.ts、family-events-messages/infra/bin/*.ts
-  - 例外/異常系：統合時にパス参照エラーが発生する可能性があるため、相対パスを確認・修正する
+- FR-01：デプロイスクリプトの修正
+  - 説明：統合後の環境に合わせてデプロイスクリプトのパス参照を修正する
+  - 入力：`scripts/operation/deploy-backend.sh`、`scripts/operation/deploy-frontend.sh`、その他のデプロイ関連スクリプト
+  - 出力：修正されたデプロイスクリプト
+  - 例外/異常系：パス参照エラーが発生する可能性があるため、相対パスを確認・修正する
+  - 修正対象：
+    - `deploy-backend.sh`のINFRA_DIRパス参照（既に修正済みの可能性があるが、確認が必要）
+    - `deploy-frontend.sh`のプロジェクトルートパス参照
+    - その他のデプロイ関連スクリプトのパス参照
   - 受け入れ条件（Acceptance）：
-    - 統合後のコードがTypeScriptのコンパイルエラーなくビルドできる
-    - CDKのsynthコマンドが正常に実行できる
-    - 既存のインフラリソース定義が変更されていない
-  - パス参照修正対象（app-stack.ts内）：
-    1. `path.join(__dirname, '../../../ouma-family-event/assets/layer.zip')` → `path.join(__dirname, '../../../assets/layer.zip')`
-    2. `path.join(__dirname, '../../../ouma-family-event/assets/api/dist.zip')` → `path.join(__dirname, '../../../assets/api/dist.zip')`
-    3. `path.join(__dirname, '../../../ouma-family-event/assets/batch/dist.zip')` → `path.join(__dirname, '../../../assets/batch/dist.zip')`
-    4. `path.join(__dirname, '../../../ouma-family-event/lambda/ec2-launcher')` → `path.join(__dirname, '../../../lambda/ec2-launcher')`
+    - デプロイスクリプトが正常に実行できる
+    - デプロイが正常に完了する
+    - 既存のデプロイ手順が維持されている
 
-- FR-02：アプリケーションコードの統合
-  - 説明：ouma-family-eventのpackages/*（common, ingestion, batch, api, frontend）をfamily-events-messages/packages/*に統合する
-  - 入力：ouma-family-event/packages/*/src/**/*.ts、ouma-family-event/packages/*/package.json
-  - 出力：family-events-messages/packages/*/src/**/*.ts、family-events-messages/packages/*/package.json
-  - 例外/異常系：workspaceの依存関係が壊れる可能性があるため、package.jsonのworkspaces設定を確認する
-  - package.jsonのworkspaces設定：
-    - 統合後は`workspaces: ["infra", "packages/*"]`として、infraとpackagesを同じworkspaceに含める
-    - これにより、monorepoとして統一的な依存関係管理が可能になる
+- FR-02：インフラのデプロイ
+  - 説明：CDKスタックを本番環境にデプロイする
+  - 入力：CDKスタック定義（`infra/lib/stacks/*.ts`）、CDK設定（`infra/cdk.json`）
+  - 出力：デプロイされたインフラリソース（VPC、DynamoDB、Lambda関数、API Gateway等）
+  - 例外/異常系：デプロイエラーが発生する可能性があるため、エラーログを確認して原因を特定する
+  - デプロイ順序：
+    1. NetworkStack（VPC、セキュリティグループ）
+    2. DataStack（DynamoDBテーブル、Secrets Manager）
+    3. OpsStack（CloudWatch Logs、SNSトピック）
+    4. AppStack（Lambda関数、API Gateway、Cognito、CloudFront）
   - 受け入れ条件（Acceptance）：
-    - 統合後のコードがTypeScriptのコンパイルエラーなくビルドできる
-    - npm installが正常に実行できる
-    - 既存のアプリケーション機能が正常に動作する
+    - CDKスタックが正常にデプロイされる
+    - インフラリソースが正常に作成される
+    - 既存のインフラリソースが変更されない（既存リソースがある場合）
 
-- FR-03：スクリプト・Lambda関数の統合
-  - 説明：ouma-family-eventのscripts/*とlambda/*をfamily-events-messagesに統合する（テストコードは統合しない）
-  - 入力：ouma-family-event/scripts/**/*（テストコード除外）、ouma-family-event/lambda/**/*
-  - 出力：family-events-messages/scripts/**/*、family-events-messages/lambda/**/*
-  - 例外/異常系：スクリプト内のパス参照が壊れる可能性があるため、相対パスを確認・修正する
-  - バッチファイル修正対象：
-    - deploy-backend.sh: INFRA_DIRのパス参照を修正（`${HOME}/work/ouma-events-infra` → 統合後のパス）
-    - build-lambda.sh: プロジェクトルートのパス参照を確認・修正
-    - build-batch-code.sh: プロジェクトルートのパス参照を確認・修正
-    - その他のスクリプト: 統合後のディレクトリ構造に合わせてパス参照を修正
+- FR-03：バックエンドのデプロイ
+  - 説明：Lambda関数とAPI Gatewayを本番環境にデプロイする
+  - 入力：Lambda関数コード（`packages/api/dist.zip`、`packages/batch/dist.zip`）、Lambda Layer（`assets/layer.zip`）
+  - 出力：デプロイされたLambda関数、API Gateway
+  - 例外/異常系：デプロイエラーが発生する可能性があるため、エラーログを確認して原因を特定する
+  - デプロイ手順：
+    1. Lambda Layerのビルド（`scripts/operation/build-lambda-layer.sh`）
+    2. Lambda関数のビルド（`scripts/operation/build-lambda.sh`）
+    3. バッチコードのビルド（`scripts/operation/build-batch-code.sh`）
+    4. CDKデプロイ（`scripts/operation/deploy-backend.sh`）
   - 受け入れ条件（Acceptance）：
-    - 統合後のスクリプトが正常に実行できる
-    - Lambda関数が正常にデプロイできる
-    - 既存のバッチ処理が正常に動作する
-    - ビルド・デプロイ手順が既存の動作を維持している
+    - Lambda関数が正常にデプロイされる
+    - API Gatewayが正常にデプロイされる
+    - APIが正常に動作する（イベント検索API、イベント詳細API等）
 
-- FR-04：ドキュメントの新規作成
-  - 説明：docs配下のテンプレートに基づいて、統合後のシステムのドキュメントを新規作成する
-  - 入力：docs配下のテンプレート、統合後のコード構造
-  - 出力：docs/01_REQUIREMENTS/requirements.md、docs/02_DESIGN/*.md、docs/03_OPERATIONS/runbook.md
-  - 例外/異常系：既存ドキュメントの情報が不足している場合は、コードから推測して記載する
+- FR-04：フロントエンドのデプロイ
+  - 説明：Next.jsアプリケーションをビルドしてS3にアップロードし、CloudFrontキャッシュを無効化する
+  - 入力：Next.jsアプリケーションコード（`packages/frontend/`）
+  - 出力：デプロイされたフロントエンド（S3バケット、CloudFront Distribution）
+  - 例外/異常系：デプロイエラーが発生する可能性があるため、エラーログを確認して原因を特定する
+  - デプロイ手順：
+    1. Next.jsアプリケーションのビルド
+    2. S3バケットへのアップロード
+    3. CloudFrontキャッシュの無効化
   - 受け入れ条件（Acceptance）：
-    - すべてのテンプレート項目が埋まっている
-    - docs/00_INDEX.mdからすべてのドキュメントにアクセスできる
-    - ドキュメントとコードの整合性が保たれている
+    - フロントエンドが正常にデプロイされる
+    - フロントエンドが正常に表示される
+    - イベント一覧が正常に表示される
+
+- FR-05：Lambdaバッチの動作確認
+  - 説明：weekly-ingestバッチ、friday-notifyバッチが正常に動作することを確認する
+  - 入力：Lambda関数の実行（`scripts/operation/run-batch.sh`）
+  - 出力：バッチ実行結果（ログ、DynamoDBへの書き込み結果等）
+  - 例外/異常系：バッチ実行エラーが発生する可能性があるため、エラーログを確認して原因を特定する
+  - 確認対象：
+    - weekly-ingestバッチ：外部ソースからデータを取得し、DynamoDBに保存する
+    - friday-notifyバッチ：DynamoDBから週末イベントを取得し、LINE API経由でユーザーに通知する
+  - 受け入れ条件（Acceptance）：
+    - weekly-ingestバッチが正常に実行される
+    - friday-notifyバッチが正常に実行される
+    - バッチ実行結果が期待通りである
+
+- FR-06：EC2スポットインスタンスの起動確認
+  - 説明：ec2-launcher Lambda関数を実行してEC2スポットインスタンスを起動し、バッチが実行されることを確認する
+  - 入力：ec2-launcher Lambda関数の実行（`scripts/operation/run-batch.sh`）
+  - 出力：EC2スポットインスタンスの起動結果、バッチ実行結果
+  - 例外/異常系：EC2インスタンスの起動エラーが発生する可能性があるため、エラーログを確認して原因を特定する
+  - 確認対象：
+    - EC2スポットインスタンスが正常に起動する
+    - EC2インスタンス上でバッチが正常に実行される
+    - EC2インスタンスが正常に終了する
+  - 受け入れ条件（Acceptance）：
+    - EC2スポットインスタンスが正常に起動する
+    - EC2インスタンス上でバッチが正常に実行される
+    - EC2インスタンスが正常に終了する
+
+- FR-07：フロントエンドの動作確認
+  - 説明：フロントエンドが正常に動作することを確認する
+  - 入力：ブラウザでフロントエンドにアクセス
+  - 出力：フロントエンドの表示結果、API呼び出し結果
+  - 例外/異常系：フロントエンドが正常に表示されない場合、エラーログを確認して原因を特定する
+  - 確認対象：
+    - トップページが正常に表示される
+    - イベント一覧が正常に表示される（データが存在する場合）
+    - イベント検索機能が正常に動作する
+    - 設定ページが正常に表示される
+  - 受け入れ条件（Acceptance）：
+    - フロントエンドが正常に表示される
+    - イベント一覧が正常に表示される（データが存在する場合）
+    - イベント検索機能が正常に動作する
+
+- FR-08：バックエンドAPIの動作確認
+  - 説明：バックエンドAPIが正常に動作することを確認する
+  - 入力：API Gateway経由でAPIを呼び出す
+  - 出力：APIレスポンス（イベント検索結果、イベント詳細等）
+  - 例外/異常系：API呼び出しエラーが発生する可能性があるため、エラーログを確認して原因を特定する
+  - 確認対象：
+    - イベント検索API（`GET /api/v1/events`）
+    - イベント詳細API（`GET /api/v1/events/:id`）
+    - ユーザー設定API（`GET /api/v1/users/settings`）
+  - 受け入れ条件（Acceptance）：
+    - イベント検索APIが正常に動作する
+    - イベント詳細APIが正常に動作する
+    - APIレスポンスが期待通りである
+
+- FR-09：データ収集バッチの実行
+  - 説明：データが存在しない場合、weekly-ingestバッチを実行して外部ソースからデータを取得する
+  - 入力：weekly-ingestバッチの実行（`scripts/operation/run-batch.sh weekly-ingest`）
+  - 出力：外部ソースから取得したデータ、DynamoDBへの保存結果
+  - 例外/異常系：データ取得エラーが発生する可能性があるため、エラーログを確認して原因を特定する。データ取得が困難な場合は、テストデータを直接投入する
+  - データ取得方法：
+    1. まずweekly-ingestバッチを実行して外部ソースからデータを取得する
+    2. データ取得が困難な場合は、テストデータを直接DynamoDBに投入する
+  - 受け入れ条件（Acceptance）：
+    - weekly-ingestバッチが正常に実行される
+    - 外部ソースからデータが正常に取得される（可能な場合）
+    - DynamoDBにデータが正常に保存される
 
 ---
 
@@ -175,83 +272,105 @@
 > 実務で崩れやすいので必ず書く。分からなければ仮置きして明示する。
 
 #### 性能（Performance）
-- 期待性能：統合後も既存の性能を維持する（統合による性能劣化は許容しない）
-- 目標レスポンス：既存のレスポンス時間を維持
-- 許容バッチ時間（該当時）：既存のバッチ処理時間を維持
+- 期待性能：既存の性能を維持する（デプロイ・テストによる性能劣化は許容しない）
+- 目標レスポンス：既存のAPIレスポンス時間を維持（2秒以内）
+- 許容バッチ時間：既存のバッチ処理時間を維持（weekly-ingest: 15分以内、friday-notify: 5分以内）
 
 #### 可用性（Availability）
-- 目標稼働：統合後も既存の稼働率を維持する（統合によるダウンタイムは許容しない）
-- 障害時の許容：統合作業中に既存システムが停止しないこと
+- 目標稼働：既存の稼働率を維持する（デプロイ・テストによるダウンタイムは許容しない）
+- 障害時の許容：デプロイ・テスト中に既存システムが停止しないこと
+- 復旧時間：デプロイエラーが発生した場合、30分以内にロールバックできること
 
 #### セキュリティ（Security）
-- 認証/認可：既存の認証・認可機構を維持する
-- 取り扱う機密情報：既存のシークレット管理を維持する
-- ログに残してよい/悪い情報：既存のログ出力方針を維持する
+- 認証/認可：既存の認証・認可機構を維持する（Cognito UserPool、API Gateway JWT認証）
+- 取り扱う機密情報：既存のシークレット管理を維持する（Secrets Manager）
+- ログに残してよい/悪い情報：既存のログ出力方針を維持する（機密情報はログに出力しない）
 
 #### 運用（Operations）
-- 監視/アラート（必要なら）：既存の監視・アラート設定を維持する
-- ロールバック方針：統合に問題が発生した場合、元のリポジトリに戻すことができること
+- 監視/アラート（必要なら）：既存の監視・アラート設定を維持する（CloudWatch Logs、SNSトピック）
+- ロールバック方針：デプロイエラーが発生した場合、前回のデプロイ状態に戻すことができること
 - 運用手順の格納先：`docs/03_OPERATIONS/runbook.md`
+- エラー時の対応：ログ確認→原因特定→修正の順で対応する
 
 #### 監査/証跡（Audit）
-- Issueに残すべき証跡：統合作業の実施内容、検証結果、問題発生時の対応
-- Notionに残すべきまとめ：統合後のシステム構成、ドキュメント構造、運用上の注意点
+- Issueに残すべき証跡：デプロイ・テストの実施内容、検証結果、問題発生時の対応
+- Notionに残すべきまとめ：デプロイ手順、動作確認結果、問題発生時の対応手順
 
 ---
 
 ## 6. データ要件（Data Requirements）
-- データソース：統合対象外（既存のデータソースを維持）
-- 正規化/変換（必要なら）：統合対象外
-- 保存先：統合対象外（既存のデータ保存先を維持）
-- データ品質（欠損/重複/フォーマット）：統合対象外
+- データソース：外部イベントソース（weekly-ingestバッチで取得）
+- 正規化/変換（必要なら）：既存の正規化ロジックを維持する
+- 保存先：DynamoDBテーブル（events, users, summaries, cityGeo）
+- データ品質（欠損/重複/フォーマット）：既存のデータ品質要件を維持する
+- テストデータ：データが存在しない場合、テストデータを投入する可能性がある
 
 ---
 
 ## 7. 制約（Constraints）
 - 技術的制約：
-  - 既存の動作を維持する必要がある（統合による機能変更は不可）
+  - 既存の動作を維持する必要がある（デプロイ・テストによる機能変更は不可）
   - TypeScript、Node.js、AWS CDKの既存バージョンを維持する
   - 既存のパッケージ依存関係を維持する
 - 期限/コスト制約：
-  - 統合作業中に既存システムが停止しないこと
-  - 統合による追加コストは発生しないこと
+  - デプロイ・テスト中に既存システムが停止しないこと
+  - デプロイ・テストによる追加コストは最小限に抑える（EC2スポットインスタンスの使用）
 - 外部依存（API、権限、第三者）：
   - 既存のAWSリソースへの依存を維持する
-  - 既存の外部APIへの依存を維持する
+  - 既存の外部APIへの依存を維持する（LINE API、外部イベントソース等）
+- 環境制約：
+  - prd環境のみ（環境は1つしかない）
 
 ---
 
 ## 8. 受け入れ基準（Acceptance Criteria）
 > Checkフェーズで「OK/NG」を判断するための基準。  
-> “動いた気がする” を排除する。
+> "動いた気がする" を排除する。
 
-- AC-01：インフラコードの統合完了
-  - family-events-messages/infra/配下にCDKスタックコードが統合されている
-  - app-stack.ts内の4つのパス参照が統合後のパスに修正されている
-  - `npm run build`が正常に実行できる
-  - `npx cdk synth`が正常に実行できる
-  - 既存のインフラリソース定義が変更されていない（diff確認）
+- AC-01：デプロイスクリプトの修正完了
+  - デプロイスクリプトが統合後の環境に合わせて修正されている
+  - デプロイスクリプトが正常に実行できる
+  - デプロイが正常に完了する
 
-- AC-02：アプリケーションコードの統合完了
-  - family-events-messages/packages/*配下にアプリケーションコードが統合されている
-  - package.jsonのworkspaces設定が`["infra", "packages/*"]`に更新されている
-  - `npm install`が正常に実行できる
-  - `npm run build`が正常に実行できる
-  - 既存のアプリケーション機能が正常に動作する（動作確認）
+- AC-02：インフラのデプロイ完了
+  - CDKスタックが正常にデプロイされる
+  - インフラリソースが正常に作成される
+  - 既存のインフラリソースが変更されない（既存リソースがある場合）
 
-- AC-03：スクリプト・Lambda関数の統合完了
-  - family-events-messages/scripts/*配下にスクリプトが統合されている（テストコードは除外）
-  - family-events-messages/lambda/*配下にLambda関数コードが統合されている
-  - バッチファイル内のパス参照が統合後のパスに修正されている
-  - 統合後のスクリプトが正常に実行できる
-  - Lambda関数が正常にデプロイできる
-  - 既存のビルド・デプロイ手順が正常に動作する
+- AC-03：バックエンドのデプロイ完了
+  - Lambda関数が正常にデプロイされる
+  - API Gatewayが正常にデプロイされる
+  - APIが正常に動作する（イベント検索API、イベント詳細API等）
 
-- AC-04：ドキュメントの新規作成完了
-  - docs/01_REQUIREMENTS/requirements.mdが更新されている
-  - docs/02_DESIGN/*.mdが作成されている
-  - docs/03_OPERATIONS/runbook.mdが更新されている
-  - docs/00_INDEX.mdからすべてのドキュメントにアクセスできる
+- AC-04：フロントエンドのデプロイ完了
+  - フロントエンドが正常にデプロイされる
+  - フロントエンドが正常に表示される
+  - イベント一覧が正常に表示される（データが存在する場合）
+
+- AC-05：Lambdaバッチの動作確認完了
+  - weekly-ingestバッチが正常に実行される
+  - friday-notifyバッチが正常に実行される
+  - バッチ実行結果が期待通りである
+
+- AC-06：EC2スポットインスタンスの起動確認完了
+  - EC2スポットインスタンスが正常に起動する
+  - EC2インスタンス上でバッチが正常に実行される
+  - EC2インスタンスが正常に終了する
+
+- AC-07：フロントエンドの動作確認完了
+  - フロントエンドが正常に表示される
+  - イベント一覧が正常に表示される（データが存在する場合）
+  - イベント検索機能が正常に動作する
+
+- AC-08：バックエンドAPIの動作確認完了
+  - イベント検索APIが正常に動作する
+  - イベント詳細APIが正常に動作する
+  - APIレスポンスが期待通りである
+
+- AC-09：データ収集バッチの実行完了
+  - weekly-ingestバッチが正常に実行される
+  - 外部ソースからデータが正常に取得される（可能な場合）
+  - DynamoDBにデータが正常に保存される
 
 ---
 
@@ -261,8 +380,7 @@
 - [ ] Plan Issue の子Taskが全て Close されている
 - [ ] 受け入れ基準（Acceptance Criteria）を満たす
 - [ ] 変更履歴（`docs/01_REQUIREMENTS/changes.md`）が更新されている
-- [ ] 運用手順（`docs/02_OPERATIONS/runbook.md`）が更新されている
-- [ ] AI Knowledge（`docs/03_AI_KNOWLEDGE/INDEX.md,README.md`）が更新されている
+- [ ] 運用手順（`docs/03_OPERATIONS/runbook.md`）が更新されている
 - [ ] Notion が最終化されている
 
 ---
@@ -276,19 +394,20 @@
 ---
 
 ## 11. メモ（任意）
-- 統合の順序：
-  1. インフラコードの統合（ouma-events-infra → family-events-messages/infra）
-  2. アプリケーションコードの統合（ouma-family-event/packages → family-events-messages/packages）
-  3. スクリプト・Lambda関数の統合（ouma-family-event/scripts, lambda → family-events-messages）
-  4. パス参照の修正（app-stack.ts、バッチファイル）
-  5. 動作確認（ビルド確認、動作確認）
-- Git履歴：
-  - 統合時は新規コミットとして扱う（Git履歴は保持しない）
-  - 統合ブランチを作成してコミットする
-- 動作確認方法：
-  - ビルド確認：`npm run build`、`npx cdk synth`
-  - 動作確認：既存機能の動作確認（E2Eテストは実施しない）
-  - 動画形式での記録は不要
-- テストコード：
-  - 既存のテストコードは統合しない
-  - 運用バッチのみ統合する
+- デプロイ順序：
+  1. インフラのデプロイ（NetworkStack → DataStack → OpsStack → AppStack）
+  2. バックエンドのデプロイ（Lambda Layer → Lambda関数 → API Gateway）
+  3. フロントエンドのデプロイ（Next.jsビルド → S3アップロード → CloudFrontキャッシュ無効化）
+- 動作確認順序：
+  1. データ収集バッチの実行（weekly-ingest）
+  2. Lambdaバッチの動作確認（weekly-ingest、friday-notify）
+  3. EC2スポットインスタンスの起動確認（ec2-launcher）
+  4. バックエンドAPIの動作確認（イベント検索API、イベント詳細API等）
+  5. フロントエンドの動作確認（イベント一覧表示、検索機能等）
+- テストデータ：
+  - データが存在しない場合、まずweekly-ingestバッチを実行して外部ソースからデータを取得する
+  - データ取得が困難な場合は、テストデータを直接DynamoDBに投入する
+- エラー時の対応：
+  - ログ確認（CloudWatch Logs）
+  - 原因特定（エラーメッセージ、スタックトレース等）
+  - 修正（デプロイスクリプトの修正、設定の修正等）

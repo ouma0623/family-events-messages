@@ -83,5 +83,9 @@ export declare class DynamoDBEventRepository implements EventRepository {
      * 通知有効なユーザー一覧を取得
      */
     getNotifyEnabledUsers(): Promise<any[]>;
+    /**
+     * 全イベントを削除（洗い替え用）
+     */
+    deleteAll(): Promise<void>;
 }
 //# sourceMappingURL=dynamodb.d.ts.map

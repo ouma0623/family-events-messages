@@ -26,5 +26,9 @@ export interface EventRepository {
      * @param weekendOf 週末の基準日（YYYY-MM-DD形式、指定しない場合は今週末）
      */
     listWeekendRecommendations(userPref: UserPreference, weekendOf?: string): Promise<EventNormalized[]>;
+    /**
+     * 全イベントを削除（洗い替え用）
+     */
+    deleteAll(): Promise<void>;
 }
 //# sourceMappingURL=interface.d.ts.map

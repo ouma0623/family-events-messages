@@ -9,7 +9,9 @@ exports.MemoryEventRepository = void 0;
  * メモリ実装（開発・テスト用）
  */
 class MemoryEventRepository {
-    events = new Map();
+    constructor() {
+        this.events = new Map();
+    }
     /**
      * イベントを一括Upsert
      */
@@ -63,6 +65,12 @@ class MemoryEventRepository {
      */
     async getById(eventId) {
         return this.events.get(eventId) || null;
+    }
+    /**
+     * 全イベントを削除（洗い替え用）
+     */
+    async deleteAll() {
+        this.events.clear();
     }
     /**
      * 週末おすすめイベントを取得

@@ -54,8 +54,6 @@ var ErrorLevel;
  * エラーハンドラー
  */
 class ErrorHandler {
-    logDir;
-    enableFileLogging;
     constructor(logDir) {
         // Lambda環境の場合は /tmp を使用、それ以外は logs を使用
         const isLambda = !!process.env.AWS_LAMBDA_FUNCTION_NAME;
@@ -92,6 +90,13 @@ class ErrorHandler {
         console.error(`[${fullEntry.level}] ${fullEntry.message}`, fullEntry.error || '');
         // ファイルに出力
         this.writeLogFile(fullEntry);
+    }
+    /**
+     * 情報ログを出力
+     */
+    info(message, context) {
+        // infoレベルはコンソールに出力のみ（ファイルには出力しない）
+        console.log(`[INFO] ${message}`, context || {});
     }
     /**
      * 警告ログを出力
