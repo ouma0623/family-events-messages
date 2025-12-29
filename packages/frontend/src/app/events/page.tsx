@@ -13,6 +13,10 @@ import { EventList } from '../../components/EventList';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { searchEvents, getEventById } from '../../lib/api';
 import Link from 'next/link';
+import Image from 'next/image';
+
+// デフォルト画像（プレースホルダー）
+const DEFAULT_EVENT_IMAGE = 'https://via.placeholder.com/800x600?text=Event+Image';
 
 function EventsPageContent() {
   const searchParams = useSearchParams();
@@ -41,14 +45,15 @@ function EventsPageContent() {
   const handleSearch = async (query: SearchFormData) => {
     setLoading(true);
     try {
-      const data = await searchEvents({
-        city: query.city,
-        pref: query.pref,
-        from: query.startDate,
-        to: query.endDate,
-        categories: query.categories,
-        keyword: query.keyword,
-      });
+          const data = await searchEvents({
+            city: query.city,
+            pref: query.pref,
+            from: query.startDate,
+            to: query.endDate,
+            categories: query.categories,
+            isFree: query.isFree ?? undefined,
+            keyword: query.keyword,
+          });
       setEvents(data.items);
     } catch (error) {
       console.error('Search failed:', error);
@@ -107,25 +112,39 @@ function EventsPageContent() {
               )}
             </div>
             
-            {/* おすすめ度 */}
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-600">おすすめ度</span>
-                <span className="text-xl font-bold text-primary-600">
-                  {event.recommendScore}
-                </span>
+            {/* カテゴリ */}
+            {event.categories && event.categories.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {event.categories.map((category, idx) => (
+                  <span key={idx} className="badge-primary">
+                    {category}
+                  </span>
+                ))}
               </div>
-              {event.categories && event.categories.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  {event.categories.map((category, idx) => (
-                    <span key={idx} className="badge-primary">
-                      {category}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
+            )}
           </div>
+
+          {/* 画像 */}
+          {event.imageUrls && event.imageUrls.length > 0 && (
+            <div className="mb-8">
+              <div className="relative w-full h-64 md:h-96 rounded-lg overflow-hidden bg-gray-100">
+                <Image
+                  src={event.imageUrls[0]}
+                  alt={event.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  onError={(e) => {
+                    // 画像読み込みエラー時はデフォルト画像にフォールバック
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== DEFAULT_EVENT_IMAGE) {
+                      target.src = DEFAULT_EVENT_IMAGE;
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          )}
 
           {/* 説明 */}
           {event.description && (
@@ -134,6 +153,21 @@ function EventsPageContent() {
               <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
                 {event.description}
               </p>
+            </div>
+          )}
+
+          {/* おすすめ理由 */}
+          {event.recommendReasons && event.recommendReasons.length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-3">⭐ おすすめ理由</h2>
+              <ul className="space-y-2">
+                {event.recommendReasons.map((reason, idx) => (
+                  <li key={idx} className="flex items-start">
+                    <span className="mr-2 text-primary-600">•</span>
+                    <span className="text-gray-700">{reason}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
@@ -214,11 +248,15 @@ function EventsPageContent() {
           )}
 
           {/* 料金 */}
-          {event.priceText && (
+          {(event.isFree === true || event.priceText) && (
             <div className="mb-8">
               <h2 className="text-xl font-bold text-gray-900 mb-4">💵 料金</h2>
               <div className="bg-gray-50 rounded-lg p-4">
-                <p className="text-lg text-gray-900">{event.priceText}</p>
+                {event.isFree === true ? (
+                  <p className="text-lg font-semibold text-primary-600">無料</p>
+                ) : event.priceText ? (
+                  <p className="text-lg text-gray-900">{event.priceText}</p>
+                ) : null}
               </div>
             </div>
           )}

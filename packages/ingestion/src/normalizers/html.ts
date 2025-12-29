@@ -6,6 +6,7 @@
 import { BaseNormalizer } from './base';
 import { EventNormalized, Source } from '@ouma-family-event/common';
 import { HtmlEventData } from '../mappers/html';
+import { classifyCategories } from '@ouma-family-event/common';
 
 /**
  * HTML正規化クラス
@@ -35,6 +36,15 @@ export class HtmlNormalizer extends BaseNormalizer {
     // イベントIDを生成
     const normalizedEventId = `S8_WALKERPLUS:${eventId}`;
 
+    // 料金情報を設定
+    const pricePageData = mapped.pricePage;
+    const priceText = pricePageData?.priceText;
+    const isFree = pricePageData?.isFree;
+
+    // カテゴリ分類を適用
+    const categories = dataPageData.categories || [];
+    const categoryClassifications = classifyCategories(categories);
+
     // EventNormalized形式に変換
     const event: EventNormalized = {
       eventId: normalizedEventId,
@@ -57,6 +67,9 @@ export class HtmlNormalizer extends BaseNormalizer {
       imageUrls: jsonLdData.image ? [jsonLdData.image] : [],
       displayOrder,
       durationDays,
+      // 料金情報
+      priceText: priceText,
+      isFree: isFree !== undefined ? isFree : null,
       // デフォルト値
       recommendScore: 50,
       recommendReasons: [],
@@ -64,6 +77,8 @@ export class HtmlNormalizer extends BaseNormalizer {
       raw: {
         jsonLd: jsonLdData,
         dataPage: dataPageData,
+        pricePage: pricePageData,
+        categoryClassifications: categoryClassifications,
       },
       ingestedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

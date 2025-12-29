@@ -6,8 +6,8 @@ SSOT：requirements（docs/01_REQUIREMENTS/requirements.md）を前提とし、�
 ---
 
 ## 0. メタ情報
-- 最終更新日：2025-01-27
-- Plan Issue：#XXXX（作成予定）
+- 最終更新日：2025-12-29
+- Plan Issue：#23（https://github.com/ouma0623/family-events-messages/issues/23）
 - 関連：docs/00_INDEX.md
 
 ---
@@ -24,49 +24,66 @@ SSOT：requirements（docs/01_REQUIREMENTS/requirements.md）を前提とし、�
 ## 2. 用語・前提（Glossary）
 | 用語 | 意味 |
 |---|---|
-| 統合 | 複数のリポジトリに分散しているコードを単一リポジトリに集約すること |
-| SSOT | Single Source of Truth（唯一の正） |
-| CDKスタック | AWS CDKで定義されたインフラリソースの集合 |
-| モノレポ | 複数のパッケージを単一リポジトリで管理する構成 |
+| 大ジャンル | イベントの大分類（食べる・遊ぶ・見る学ぶ） |
+| 小ジャンル | イベントの小分類（既存のカテゴリ） |
+| キーワードベース自動分類 | カテゴリ名に含まれるキーワードを基に自動的に大ジャンル・小ジャンルを分類する機能 |
+| 料金ページ | WalkerPlusの`price.html`ページ |
+| デフォルト画像 | 画像がない場合に表示するフォールバック画像 |
 
 ---
 
 ## 3. スコープ（要約）
 ### 3.1 In Scope（今回やる）
-- インフラコード（ouma-events-infra）の統合
-- アプリケーションコード（ouma-family-event/packages/*）の統合
-- スクリプト・Lambda関数コードの統合
-- docs配下での新規ドキュメント作成
+- フロントエンド表示の改善（おすすめ度削除、画像表示、おすすめ理由表示、料金情報表示）
+- イベント検索UIの改善（タグ選択式、大ジャンル・小ジャンル分類、無料・有料選択）
+- バックエンド料金情報取得（料金ページから取得、数値抽出）
+- カテゴリ分類の改善（キーワードベース自動分類、大ジャンル・小ジャンル分類）
+- 既存データの再分類（`weekly-ingest`バッチ実行時に洗い替え）
 
 ### 3.2 Out of Scope（今回やらない）
-- 既存ドキュメントの統合
-- 既存の動作・機能の変更
-- インフラリソースの再デプロイ
+- 新しいバッチ処理の作成（既存の`weekly-ingest`バッチに機能を追加する）
+- おすすめ理由の自動生成（既存の`recommendReasons`フィールドを使用）
+- 画像の自動取得（既存の`imageUrls`フィールドを使用）
 
 ---
 
 ## 4. ユースケース（Use Cases）
 > requirements の UC をここに写経してもよい。最小限でOK。
 
-- UC-01：インフラコードの統合
-  - 主体：開発者
-  - 入力：ouma-events-infra/lib/stacks/*.ts、ouma-events-infra/lib/*.ts、ouma-events-infra/bin/*.ts
-  - 期待結果：family-events-messages/infra/配下に統合され、既存のインフラが正常に動作する
+- UC-01：イベント一覧で画像を確認する
+  - 主体：ユーザー
+  - 入力：トップページまたはイベント検索ページでイベント一覧を表示する
+  - 期待結果：各イベントカードに画像がサムネイルとして表示される
 
-- UC-02：アプリケーションコードの統合
-  - 主体：開発者
-  - 入力：ouma-family-event/packages/*/src/**/*.ts、ouma-family-event/packages/*/package.json
-  - 期待結果：family-events-messages/packages/*配下に統合され、既存のアプリケーションが正常に動作する
+- UC-02：イベント詳細でおすすめ理由を確認する
+  - 主体：ユーザー
+  - 入力：イベント詳細ページを表示する
+  - 期待結果：おすすめ理由が表示される
 
-- UC-03：スクリプト・Lambda関数の統合
-  - 主体：開発者・運用者
-  - 入力：ouma-family-event/scripts/**/*、ouma-family-event/lambda/**/*
-  - 期待結果：family-events-messages/scripts/*、family-events-messages/lambda/*配下に統合され、既存のスクリプト・Lambda関数が正常に動作する
+- UC-03：イベント詳細で料金情報を確認する
+  - 主体：ユーザー
+  - 入力：イベント詳細ページを表示する
+  - 期待結果：料金情報が表示される（無料の場合は「無料」と表示、有料の場合は料金が表示される）
 
-- UC-04：ドキュメントの新規作成
-  - 主体：開発者・運用者
-  - 入力：docs配下のテンプレート、統合後のコード構造
-  - 期待結果：統一的なドキュメント構造が確立され、参照しやすくなる
+- UC-04：タグ選択でイベントを検索する
+  - 主体：ユーザー
+  - 入力：イベント検索ページで大ジャンル・小ジャンルを選択する
+  - 期待結果：選択したタグに該当するイベントが表示される
+
+- UC-05：無料・有料でイベントを絞り込む
+  - 主体：ユーザー
+  - 入力：イベント検索ページで「無料」「有料」を選択する
+  - 期待結果：選択した条件に該当するイベントが表示される
+
+- UC-06：バッチ処理で料金情報を取得する
+  - 主体：システム（バッチ処理）
+  - 入力：`weekly-ingest`バッチを実行する
+  - 期待結果：各イベントの料金ページから料金情報を取得し、数値を抽出してDynamoDBに保存する
+
+- UC-07：バッチ処理でカテゴリを自動分類する
+  - 主体：システム（バッチ処理）
+  - 入力：`weekly-ingest`バッチを実行する
+  - 期待結果：各イベントのカテゴリがキーワードベースで自動分類され、大ジャンル・小ジャンルに分類される
 
 ---
 
@@ -75,374 +92,325 @@ SSOT：requirements（docs/01_REQUIREMENTS/requirements.md）を前提とし、�
 
 | Feature ID | 機能名 | 概要 | 要件ID対応（FR/AC） | 優先度 |
 |---|---|---|---|---|
-| F-01 | インフラコード統合 | ouma-events-infraのCDKスタックコードを統合 | FR-01 / AC-01 | High |
-| F-02 | アプリケーションコード統合 | ouma-family-eventのpackages/*を統合 | FR-02 / AC-02 | High |
-| F-03 | スクリプト・Lambda関数統合 | ouma-family-eventのscripts/*とlambda/*を統合（テストコード除外） | FR-03 / AC-03 | High |
-| F-04 | パス参照修正 | app-stack.ts、バッチファイル内のパス参照を統合後のパスに修正 | FR-01, FR-03 / AC-01, AC-03 | High |
-| F-05 | 動作確認 | ビルド確認、動作確認を実施 | FR-01, FR-02, FR-03 / AC-01, AC-02, AC-03 | High |
-| F-06 | ドキュメント作成 | docs配下のテンプレートに基づいて新規ドキュメントを作成 | FR-04 / AC-04 | High |
+| F-01 | おすすめ度削除 | フロントエンドからおすすめ度の表示を削除 | FR-01 / AC-01 | High |
+| F-02 | 画像表示 | フロントエンドでイベント画像をサムネイルとして表示 | FR-02 / AC-02 | High |
+| F-03 | おすすめ理由表示 | フロントエンドでイベントのおすすめ理由を表示 | FR-03 / AC-03 | High |
+| F-04 | 料金情報表示 | フロントエンドでイベントの料金情報を表示 | FR-04 / AC-04 | High |
+| F-05 | 料金ページ取得 | バックエンドでWalkerPlusの料金ページから料金情報を取得 | FR-05 / AC-05 | High |
+| F-06 | カテゴリ自動分類 | バックエンドでカテゴリをキーワードベースで自動分類 | FR-06 / AC-06 | High |
+| F-07 | 既存データ再分類 | 既存のDynamoDBデータを再分類（`weekly-ingest`バッチ実行時に洗い替え） | FR-07 / AC-07 | High |
+| F-08 | タグ選択式検索UI | フロントエンドでキーワード検索をタグ選択式に変更 | FR-08 / AC-08 | High |
 
 ---
 
 ## 6. 機能仕様（Feature Specs）
 
-### F-01：インフラコード統合
+### F-01：おすすめ度削除
 #### 目的
-- ouma-events-infraのCDKスタックコードをfamily-events-messages/infra/に統合し、既存のインフラが正常に動作することを確認する
+- フロントエンドからおすすめ度（`recommendScore`）の表示を削除する
 
 #### 入力
-- 画面/CLI/API：なし（ファイル操作）
-- パラメータ：
-  - 統合元：~/work/ouma-events-infra/lib/stacks/*.ts、~/work/ouma-events-infra/lib/*.ts、~/work/ouma-events-infra/bin/*.ts
-  - 統合先：~/work/family-events-messages/infra/lib/stacks/*.ts、~/work/family-events-messages/infra/lib/*.ts、~/work/family-events-messages/infra/bin/*.ts
-- バリデーション：
-  - TypeScriptのコンパイルエラーがないこと
-  - CDKのsynthコマンドが正常に実行できること
+- 画面/CLI/API：なし（UI変更）
+- パラメータ：なし
+- バリデーション：なし
 
 #### 出力
-- 返却データ：なし
-- 表示：なし
-- 生成物（ファイル等）：
-  - family-events-messages/infra/lib/stacks/*.ts
-  - family-events-messages/infra/lib/*.ts
-  - family-events-messages/infra/bin/*.ts
-  - family-events-messages/infra/package.json
-  - family-events-messages/infra/tsconfig.json
+- 画面/CLI/API：おすすめ度が表示されないUI
+- データ：なし
 
-#### 処理フロー（要点）
-1. ouma-events-infra/lib/stacks/*.tsをfamily-events-messages/infra/lib/stacks/にコピー
-2. ouma-events-infra/lib/*.tsをfamily-events-messages/infra/lib/にコピー
-3. ouma-events-infra/bin/*.tsをfamily-events-messages/infra/bin/にコピー
-4. package.json、tsconfig.jsonを確認・調整
-5. TypeScriptのコンパイルエラーを確認
-6. パス参照の修正は別タスク（F-04）で実施
+#### 処理フロー
+1. `EventCard`コンポーネントからおすすめ度の表示を削除
+2. `events/page.tsx`（イベント詳細ページ）からおすすめ度の表示を削除
 
-#### 例外・異常系
-- パス参照エラー：相対パスを確認・修正
-- コンパイルエラー：型定義やインポートパスを確認・修正
-- リトライ方針（必要なら）：エラー発生時は元のリポジトリに戻す
+#### 例外/異常系
+- なし
 
-#### ログ（要点）
-- 何を残すか：統合作業の実施内容、エラー発生時の対応
-- 何を残さないか（機密・PII）：なし
-
-#### Acceptance（受け入れ条件）
-- AC-01 をここに対応づけて列挙
-- 統合後のコードがTypeScriptのコンパイルエラーなくビルドできる
-- CDKのsynthコマンドが正常に実行できる
-- 既存のインフラリソース定義が変更されていない（diff確認）
-
-#### 関連（Design/Implementation）
-- 主要モジュール：infra/lib/stacks/network-stack.ts、data-stack.ts、app-stack.ts、ops-stack.ts
-- 影響範囲：インフラコード全体
-- 関連Issue：#YYYY（作成予定）
+#### 受け入れ条件
+- イベントカードからおすすめ度が削除されている
+- イベント詳細ページからおすすめ度が削除されている
 
 ---
 
-### F-02：アプリケーションコード統合
+### F-02：画像表示
 #### 目的
-- ouma-family-eventのpackages/*をfamily-events-messages/packages/*に統合し、既存のアプリケーションが正常に動作することを確認する
+- フロントエンドでイベント画像（`imageUrls`）をサムネイルとして表示する
 
 #### 入力
-- 画面/CLI/API：なし（ファイル操作）
-- パラメータ：
-  - 統合元：~/work/ouma-family-event/packages/*/src/**/*.ts、~/work/ouma-family-event/packages/*/package.json
-  - 統合先：~/work/family-events-messages/packages/*/src/**/*.ts、~/work/family-events-messages/packages/*/package.json
-- バリデーション：
-  - TypeScriptのコンパイルエラーがないこと
-  - npm installが正常に実行できること
-  - workspaceの依存関係が正しく設定されていること
+- 画面/CLI/API：`EventNormalized.imageUrls`（画像URLの配列）
+- パラメータ：なし
+- バリデーション：画像URLが有効かどうか
 
 #### 出力
-- 返却データ：なし
-- 表示：なし
-- 生成物（ファイル等）：
-  - family-events-messages/packages/common/*
-  - family-events-messages/packages/ingestion/*
-  - family-events-messages/packages/batch/*
-  - family-events-messages/packages/api/*
-  - family-events-messages/packages/frontend/*
-  - family-events-messages/package.json（workspaces設定）
+- 画面/CLI/API：イベントカードとイベント詳細ページに画像が表示されるUI
+- データ：なし
 
-#### 処理フロー（要点）
-1. ouma-family-event/packages/commonをfamily-events-messages/packages/commonにコピー
-2. ouma-family-event/packages/ingestionをfamily-events-messages/packages/ingestionにコピー
-3. ouma-family-event/packages/batchをfamily-events-messages/packages/batchにコピー
-4. ouma-family-event/packages/apiをfamily-events-messages/packages/apiにコピー
-5. ouma-family-event/packages/frontendをfamily-events-messages/packages/frontendにコピー
-6. package.jsonのworkspaces設定を`["infra", "packages/*"]`に更新
-7. npm installを実行して依存関係を確認
-8. npm run buildを実行してビルド確認
+#### 処理フロー
+1. `EventCard`コンポーネントで`imageUrls`を確認
+2. 画像がある場合は画像をサムネイルとして表示
+3. 画像がない場合はデフォルト画像を表示
+4. `events/page.tsx`（イベント詳細ページ）でも同様に画像を表示
 
-#### 例外・異常系
-- workspace依存関係の破綻：package.jsonのworkspaces設定を確認・修正
-- コンパイルエラー：型定義やインポートパスを確認・修正
-- リトライ方針（必要なら）：エラー発生時は元のリポジトリに戻す
+#### 例外/異常系
+- 画像がない場合はデフォルト画像を表示する
+- 画像の読み込みエラーが発生した場合はデフォルト画像を表示する
 
-#### ログ（要点）
-- 何を残すか：統合作業の実施内容、エラー発生時の対応
-- 何を残さないか（機密・PII）：なし
-
-#### Acceptance（受け入れ条件）
-- AC-02 をここに対応づけて列挙
-- 統合後のコードがTypeScriptのコンパイルエラーなくビルドできる
-- npm installが正常に実行できる
-- 既存のアプリケーション機能が正常に動作する（動作確認）
-
-#### 関連（Design/Implementation）
-- 主要モジュール：packages/common、packages/ingestion、packages/batch、packages/api、packages/frontend
-- 影響範囲：アプリケーションコード全体
-- 関連Issue：#YYYY（作成予定）
+#### 受け入れ条件
+- イベントカードに画像がサムネイルとして表示される
+- イベント詳細ページに画像が表示される
+- 画像がない場合はデフォルト画像が表示される
 
 ---
 
-### F-03：スクリプト・Lambda関数統合
+### F-03：おすすめ理由表示
 #### 目的
-- ouma-family-eventのscripts/*とlambda/*をfamily-events-messagesに統合し、既存のスクリプト・Lambda関数が正常に動作することを確認する
+- フロントエンドでイベントのおすすめ理由（`recommendReasons`）を表示する
 
 #### 入力
-- 画面/CLI/API：なし（ファイル操作）
-- パラメータ：
-  - 統合元：~/work/ouma-family-event/scripts/**/*、~/work/ouma-family-event/lambda/**/*
-  - 統合先：~/work/family-events-messages/scripts/**/*、~/work/family-events-messages/lambda/**/*
-- バリデーション：
-  - スクリプトが正常に実行できること
-  - Lambda関数が正常にデプロイできること
+- 画面/CLI/API：`EventNormalized.recommendReasons`（おすすめ理由の配列）
+- パラメータ：なし
+- バリデーション：おすすめ理由が存在するかどうか
 
 #### 出力
-- 返却データ：なし
-- 表示：なし
-- 生成物（ファイル等）：
-  - family-events-messages/scripts/operation/*
-  - family-events-messages/scripts/test/*
-  - family-events-messages/lambda/ec2-launcher/*
+- 画面/CLI/API：イベント詳細ページにおすすめ理由が表示されるUI
+- データ：なし
 
-#### 処理フロー（要点）
-1. ouma-family-event/scripts/operation/*をfamily-events-messages/scripts/operation/にコピー（テストコード除外）
-2. ouma-family-event/lambda/ec2-launcher/*をfamily-events-messages/lambda/ec2-launcher/にコピー
-3. スクリプトの実行権限を確認
-4. パス参照の修正は別タスク（F-04）で実施
-5. Lambda関数のデプロイ確認は別タスク（F-05）で実施
+#### 処理フロー
+1. `events/page.tsx`（イベント詳細ページ）で`recommendReasons`を確認
+2. おすすめ理由がある場合は表示
+3. おすすめ理由がない場合は表示しない
 
-#### 例外・異常系
-- パス参照エラー：スクリプト内の相対パスを確認・修正
-- 実行権限エラー：実行権限を付与
-- リトライ方針（必要なら）：エラー発生時は元のリポジトリに戻す
+#### 例外/異常系
+- おすすめ理由がない場合は表示しない
 
-#### ログ（要点）
-- 何を残すか：統合作業の実施内容、エラー発生時の対応
-- 何を残さないか（機密・PII）：なし
-
-#### Acceptance（受け入れ条件）
-- AC-03 をここに対応づけて列挙
-- 統合後のスクリプトが正常に実行できる
-- Lambda関数が正常にデプロイできる
-- 既存のバッチ処理が正常に動作する
-
-#### 関連（Design/Implementation）
-- 主要モジュール：scripts/operation/*、lambda/ec2-launcher/*
-- 影響範囲：スクリプト・Lambda関数全体
-- 関連Issue：#YYYY（作成予定）
+#### 受け入れ条件
+- イベント詳細ページにおすすめ理由が表示される
+- おすすめ理由がない場合は表示されない
 
 ---
 
-### F-04：パス参照修正
+### F-04：料金情報表示
 #### 目的
-- app-stack.ts内の4つのパス参照を統合後のパスに修正する
-- バッチファイル内のパス参照を統合後のパスに修正する
-- 統合後のビルド・デプロイが正常に動作することを確認する
+- フロントエンドでイベントの料金情報（`priceText`、`isFree`）を表示する
 
 #### 入力
-- 画面/CLI/API：なし（ファイル操作）
-- パラメータ：
-  - 修正対象ファイル：infra/lib/stacks/app-stack.ts、scripts/deploy-backend.sh、scripts/build-lambda.sh、scripts/build-batch-code.sh
-- バリデーション：
-  - パス参照が正しく修正されていること
-  - ビルドが正常に実行できること
-  - CDKのsynthが正常に実行できること
+- 画面/CLI/API：`EventNormalized.priceText`（料金テキスト）、`EventNormalized.isFree`（無料フラグ）
+- パラメータ：なし
+- バリデーション：料金情報が存在するかどうか
 
 #### 出力
-- 返却データ：なし
-- 表示：なし
-- 生成物（ファイル等）：
-  - 修正後のinfra/lib/stacks/app-stack.ts
-  - 修正後のscripts/deploy-backend.sh
-  - 修正後のscripts/build-lambda.sh
-  - 修正後のscripts/build-batch-code.sh
+- 画面/CLI/API：イベント詳細ページに料金情報が表示されるUI
+- データ：なし
 
-#### 処理フロー（要点）
-1. app-stack.ts内の4つのパス参照を修正
-   - layer.zip: `path.join(__dirname, '../../assets/layer.zip')`
-   - api/dist.zip: `path.join(__dirname, '../../assets/api/dist.zip')`
-   - batch/dist.zip: `path.join(__dirname, '../../assets/batch/dist.zip')`
-   - ec2-launcher: `path.join(__dirname, '../../lambda/ec2-launcher')`
-2. deploy-backend.sh内のINFRA_DIRのパス参照を修正
-3. build-lambda.sh内のプロジェクトルートのパス参照を確認・修正
-4. build-batch-code.sh内のプロジェクトルートのパス参照を確認・修正
-5. `npm run build`を実行してビルドエラーがないことを確認
-6. `npx cdk synth`を実行してCDKの構文チェックを確認
+#### 処理フロー
+1. `events/page.tsx`（イベント詳細ページ）で`priceText`と`isFree`を確認
+2. 料金情報がある場合は表示
+3. 無料の場合は「無料」と表示
+4. 有料の場合は料金を表示
+5. 料金情報がない場合は表示しない
 
-#### 例外・異常系
-- パス参照の修正漏れ：すべてのパス参照を確認・修正
-- ビルドエラー：パス参照の修正ミスを確認・修正
-- リトライ方針（必要なら）：エラー発生時は元のパス参照に戻す
+#### 例外/異常系
+- 料金情報がない場合は表示しない
 
-#### ログ（要点）
-- 何を残すか：パス参照修正の実施内容、エラー発生時の対応
-- 何を残さないか（機密・PII）：なし
-
-#### Acceptance（受け入れ条件）
-- AC-01、AC-03 をここに対応づけて列挙
-- app-stack.ts内の4つのパス参照が統合後のパスに修正されている
-- バッチファイル内のパス参照が統合後のパスに修正されている
-- `npm run build`が正常に実行できる
-- `npx cdk synth`が正常に実行できる
-
-#### 関連（Design/Implementation）
-- 主要モジュール：infra/lib/stacks/app-stack.ts、scripts/deploy-backend.sh、scripts/build-lambda.sh、scripts/build-batch-code.sh
-- 影響範囲：パス参照全体
-- 関連Issue：`.github/ISSUES/task-04-path-references.md`を参照
+#### 受け入れ条件
+- イベント詳細ページに料金情報が表示される
+- 無料の場合は「無料」と表示される
+- 有料の場合は料金が表示される
+- 料金情報がない場合は表示されない
 
 ---
 
-### F-05：動作確認
+### F-05：料金ページ取得
 #### 目的
-- 統合後のビルド・デプロイが正常に動作することを確認する
-- 既存の動作が維持されていることを確認する
+- バックエンドでWalkerPlusの料金ページ（`price.html`）から料金情報を取得する
 
 #### 入力
-- 画面/CLI/API：なし（ビルド・デプロイコマンド実行）
-- パラメータ：
-  - ビルドコマンド：`npm run build`、`npx cdk synth`
-  - 動作確認：既存機能の動作確認
-- バリデーション：
-  - ビルドが正常に実行できること
-  - 既存の動作が維持されていること
+- 画面/CLI/API：イベントID（`eventId`）
+- パラメータ：なし
+- バリデーション：イベントIDが有効かどうか
 
 #### 出力
-- 返却データ：なし
-- 表示：ビルド結果、動作確認結果
-- 生成物（ファイル等）：
-  - ビルド成果物
-  - 動作確認ログ
+- 画面/CLI/API：料金情報（`priceText`、`isFree`）
+- データ：DynamoDBに保存される
 
-#### 処理フロー（要点）
-1. `npm run build`を実行してビルド確認
-2. `npx cdk synth`を実行してCDKの構文チェック確認
-3. 統合後のスクリプトを実行して動作確認
-4. 既存機能の動作確認（E2Eテストは実施しない）
+#### 処理フロー
+1. `HtmlFetcher.fetchPrice(eventId)`メソッドで料金ページを取得
+2. `extractFromPricePage(html)`関数で料金情報を抽出
+3. テキストから数値を抽出（正規表現を使用）
+4. 無料の場合は数値が含まれないので`isFree = true`とする
+5. 有料の場合は`priceText`に料金情報を設定
+6. `HtmlNormalizer`で`priceText`と`isFree`を設定
 
-#### 例外・異常系
-- ビルドエラー：パス参照や依存関係を確認・修正
-- 動作確認エラー：統合時の問題を確認・修正
-- リトライ方針（必要なら）：エラー発生時は元のリポジトリに戻す
+#### 例外/異常系
+- 料金ページが取得できない場合はエラーログを出力し、処理を続行する
+- 料金情報が抽出できない場合は`priceText`と`isFree`を設定しない
 
-#### ログ（要点）
-- 何を残すか：動作確認の実施内容、エラー発生時の対応
-- 何を残さないか（機密・PII）：なし
-
-#### Acceptance（受け入れ条件）
-- AC-01、AC-02、AC-03 をここに対応づけて列挙
-- ビルドが正常に実行できる
-- 既存の動作が維持されている
-
-#### 関連（Design/Implementation）
-- 主要モジュール：統合後のすべてのコード
-- 影響範囲：統合後のシステム全体
-- 関連Issue：#YYYY（作成予定）
+#### 受け入れ条件
+- 料金ページから料金情報が取得できる
+- テキストから数値が抽出できる
+- 無料の場合は`isFree = true`が設定される
+- 有料の場合は`priceText`に料金情報が設定される
 
 ---
 
-### F-06：ドキュメント作成
+### F-06：カテゴリ自動分類
 #### 目的
-- docs配下のテンプレートに基づいて、統合後のシステムのドキュメントを新規作成し、統一的なドキュメント構造を確立する
+- バックエンドでカテゴリをキーワードベースで自動分類し、大ジャンル・小ジャンルに分類する
 
 #### 入力
-- 画面/CLI/API：なし（ファイル操作）
-- パラメータ：
-  - テンプレート：docs配下のテンプレート
-  - 統合後のコード構造
-- バリデーション：
-  - すべてのテンプレート項目が埋まっていること
-  - docs/00_INDEX.mdからすべてのドキュメントにアクセスできること
+- 画面/CLI/API：カテゴリ名（`categories`配列の各要素）
+- パラメータ：なし
+- バリデーション：カテゴリ名が有効かどうか
 
 #### 出力
-- 返却データ：なし
-- 表示：なし
-- 生成物（ファイル等）：
-  - docs/01_REQUIREMENTS/requirements.md（更新）
-  - docs/02_DESIGN/architecture.md（更新）
-  - docs/02_DESIGN/functional_spec.md（更新）
-  - docs/02_DESIGN/basic_design.md（更新）
-  - docs/03_OPERATIONS/runbook.md（更新）
-  - docs/00_INDEX.md（更新）
+- 画面/CLI/API：大ジャンル（`majorGenre`）、小ジャンル（`minorGenre`）
+- データ：DynamoDBに保存される
 
-#### 処理フロー（要点）
-1. docs/01_REQUIREMENTS/requirements.mdを更新（背景・目的・スコープ・Done定義）
-2. docs/02_DESIGN/architecture.mdを更新（統合後の構成・責務境界）
-3. docs/02_DESIGN/functional_spec.mdを更新（統合機能の仕様）
-4. docs/02_DESIGN/basic_design.mdを更新（統合後のディレクトリ構成・実装方針）
-5. docs/03_OPERATIONS/runbook.mdを更新（統合後の運用手順）
-6. docs/00_INDEX.mdを更新（Issue参照枠作成）
+#### 処理フロー
+1. `packages/common/src/utils/categoryClassifier.ts`を作成
+2. `classifyCategory(category: string)`関数を実装
+3. キーワードベースでカテゴリを分類：
+   - **食べる**: 「食べ」「グルメ」「フード」「味覚」「狩り」「いちご」「フルーツ」「物産」「観光フェア」
+   - **遊ぶ**: 「体験」「ワークショップ」「アクティビティ」「公園」「屋外」「スポーツ」「祭り」「フェア」「フェス」「パレード」「ライブ」「音楽」「子供」「恋人」「夫婦」「商業施設」
+   - **見る・学ぶ**: 「展示」「企画展」「美術館」「文化施設」「科学館」「博物館」「図書館」「舞台」「演劇」「花」「自然」
+4. 分類できない場合はデフォルト分類（「遊ぶ」）を適用
+5. `HtmlNormalizer`でカテゴリ分類を適用
 
-#### 例外・異常系
-- 既存ドキュメントの情報不足：コードから推測して記載
-- テンプレート項目の未記入：すべての項目を埋める
-- リトライ方針（必要なら）：不足項目を追加
+#### 例外/異常系
+- 分類できない場合はデフォルト分類（「遊ぶ」）を適用する
 
-#### ログ（要点）
-- 何を残すか：ドキュメント作成の実施内容
-- 何を残さないか（機密・PII）：なし
-
-#### Acceptance（受け入れ条件）
-- AC-04 をここに対応づけて列挙
-- すべてのテンプレート項目が埋まっている
-- docs/00_INDEX.mdからすべてのドキュメントにアクセスできる
-- ドキュメントとコードの整合性が保たれている
-
-#### 関連（Design/Implementation）
-- 主要モジュール：docs配下のすべてのドキュメント
-- 影響範囲：ドキュメント全体
-- 関連Issue：#YYYY（作成予定）
+#### 受け入れ条件
+- カテゴリがキーワードベースで自動分類される
+- 大ジャンル・小ジャンルが正しく分類される
+- 分類できない場合はデフォルト分類が適用される
 
 ---
 
-## 7. テスト観点（設計レベル）
-> テストコードやテスト"スクリプト"の置き場所は runbook 参照。ここは観点のみ。
+### F-07：既存データ再分類
+#### 目的
+- 既存のDynamoDBデータを再分類する（`weekly-ingest`バッチ実行時に洗い替え）
 
-- 観点：
-  - 正常系：
-    - 統合後のコードがビルドできること
-    - 統合後のコードが既存の動作を維持していること
-    - 統合後のドキュメントが参照可能であること
-  - 異常系：
-    - パス参照エラーが発生しないこと
-    - コンパイルエラーが発生しないこと
-    - workspace依存関係が破綻しないこと
-  - 境界値：
-    - 統合前後のファイル数が一致していること
-    - 統合前後のコード行数が一致していること（コメント除く）
-- 受け入れ基準（requirements の AC）との対応：
-  - AC-01 → インフラコードの統合完了（ビルド・synth確認）
-  - AC-02 → アプリケーションコードの統合完了（ビルド・動作確認）
-  - AC-03 → スクリプト・Lambda関数の統合完了（実行・デプロイ確認）
-  - AC-04 → ドキュメントの新規作成完了（テンプレート項目確認）
+#### 入力
+- 画面/CLI/API：既存のDynamoDBデータ
+- パラメータ：なし
+- バリデーション：なし
 
----
+#### 出力
+- 画面/CLI/API：再分類されたDynamoDBデータ
+- データ：DynamoDBに保存される
 
-## 8. 運用観点（設計レベル）
-- 監視/アラート（必要なら）：
-  - 統合作業中に既存システムが停止しないこと
-  - 統合後の動作確認を実施すること
-- 手動オペレーションが必要な箇所：
-  - 統合前後の動作確認
-  - 統合後のビルド・デプロイ確認
-- scripts が必要になりそうな箇所：
-  - 運用バッチ：scripts/operation/（統合後のスクリプト実行手順）
-  - テスト実行：scripts/test/（統合後の動作確認手順）
+#### 処理フロー
+1. 既存の`weekly-ingest`バッチにカテゴリ再分類機能を追加
+2. `clearExisting = true`の場合、既存データを削除してから新しいデータを取得・分類する
+3. 新しいデータも正しく分類される
+
+#### 例外/異常系
+- 再分類エラーが発生した場合はエラーログを出力し、処理を続行する
+
+#### 受け入れ条件
+- 既存データが再分類される
+- 新しいデータも正しく分類される
 
 ---
 
-## 9. 未確定事項（Planで潰す）
-- 統合後のリファクタリング方針（将来対応）
-- テストカバレッジの向上方針（将来対応）
+### F-08：タグ選択式検索UI
+#### 目的
+- フロントエンドでキーワード検索をタグ選択式に変更する
+
+#### 入力
+- 画面/CLI/API：大ジャンル選択、小ジャンル選択、無料・有料選択
+- パラメータ：なし
+- バリデーション：選択されたタグが有効かどうか
+
+#### 出力
+- 画面/CLI/API：選択したタグに該当するイベントが表示されるUI
+- データ：なし
+
+#### 処理フロー
+1. `SearchForm`コンポーネントを修正
+2. タグ選択UIを実装（チェックボックス/マルチセレクト）
+3. 大ジャンル（食べる・遊ぶ・見る学ぶ）を選択できる
+4. 小ジャンル（既存カテゴリ）を選択できる
+5. 無料・有料を選択できる
+6. 必要に応じてUIライブラリを導入（shadcn/ui、Radix UIなど）
+7. リッチでエレガントなUIにする
+
+#### 例外/異常系
+- タグが選択されていない場合は全イベントを表示する
+
+#### 受け入れ条件
+- タグ選択式の検索UIが実装されている
+- 大ジャンル・小ジャンルで検索できる
+- 無料・有料で検索できる
+- UIがリッチでエレガントになっている
+
+---
+
+## 7. データフロー（Data Flow）
+> 機能間のデータの流れを簡潔に記述。
+
+1. **バックエンド処理（`weekly-ingest`バッチ）**：
+   - WalkerPlusの料金ページ（`price.html`）から料金情報を取得
+   - テキストから数値を抽出
+   - カテゴリをキーワードベースで自動分類
+   - DynamoDBに保存
+
+2. **フロントエンド表示**：
+   - DynamoDBからイベントデータを取得
+   - 画像、おすすめ理由、料金情報を表示
+   - タグ選択式の検索UIでイベントを検索
+
+---
+
+## 8. インターフェース（Interfaces）
+> API、データ構造、設定ファイルなどの仕様。
+
+### 8.1 データ構造
+- `EventNormalized`：
+  - `imageUrls?: string[]`（画像URLの配列）
+  - `recommendReasons: string[]`（おすすめ理由の配列）
+  - `priceText?: string`（料金テキスト）
+  - `isFree?: boolean | null`（無料フラグ）
+  - `majorGenre?: string`（大ジャンル）
+  - `minorGenre?: string`（小ジャンル）
+
+### 8.2 API
+- 既存のAPI（変更なし）
+
+---
+
+## 9. エラーハンドリング（Error Handling）
+> 各機能のエラー処理方針。
+
+- 料金ページが取得できない場合：エラーログを出力し、処理を続行する
+- 料金情報が抽出できない場合：`priceText`と`isFree`を設定しない
+- カテゴリが分類できない場合：デフォルト分類（「遊ぶ」）を適用する
+- 画像がない場合：デフォルト画像を表示する
+- 画像の読み込みエラーが発生した場合：デフォルト画像を表示する
+
+---
+
+## 10. テスト方針（Test Strategy）
+> 各機能のテスト方法。
+
+- 単体テスト：各機能の単体テストを実施
+- 統合テスト：バックエンドとフロントエンドの統合テストを実施
+- E2Eテスト：ユーザーシナリオに基づくE2Eテストを実施
+
+---
+
+## 11. 運用方針（Operations）
+> 各機能の運用方法。
+
+- バッチ処理：既存の`weekly-ingest`バッチを実行する
+- 監視：CloudWatch Logsでエラーログを監視する
+- ロールバック：UI改善エラーが発生した場合、前回のUI状態に戻すことができること
+
+---
+
+## 12. メモ（任意）
+- 実装順序：
+  1. バックエンド改善（料金ページ取得、カテゴリ分類）
+  2. フロントエンド改善（画像表示、おすすめ理由表示、料金情報表示、タグ選択UI）
+- テストデータ：
+  - 既存のDynamoDBデータを使用する
+  - `weekly-ingest`バッチを実行してデータを更新する

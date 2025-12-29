@@ -188,3 +188,44 @@ export function parseHtmlList(html: string): HtmlParseResult {
   };
 }
 
+/**
+ * price.htmlから料金情報を抽出
+ */
+export function extractFromPricePage(html: string): { priceText?: string; isFree?: boolean } {
+  const $ = cheerio.load(html);
+  const result: { priceText?: string; isFree?: boolean } = {};
+
+  // テーブルから料金情報を抽出
+  $('tr.m-infotable__row').each((_, row) => {
+    const th = $(row).find('th.m-infotable__th').text().trim();
+    const td = $(row).find('td.m-infotable__td').text().trim();
+
+    if (th && td && th.includes('料金')) {
+      // 料金テキストを取得
+      result.priceText = td;
+
+      // テキストから数値を抽出（正規表現）
+      const priceNumbers = td.match(/[\d,]+/g);
+      
+      // 無料の判定：数値が含まれない、または「無料」「入場無料」などの文字列が含まれる
+      const freeKeywords = ['無料', '入場無料', '参加費無料', '観覧無料', '見学無料'];
+      const hasFreeKeyword = freeKeywords.some(keyword => td.includes(keyword));
+      
+      if (hasFreeKeyword || !priceNumbers || priceNumbers.length === 0) {
+        result.isFree = true;
+      } else {
+        result.isFree = false;
+        // 数値を抽出して料金テキストに含める（既に含まれている場合はそのまま）
+        // 数値が複数ある場合は全て含める
+        const extractedPrices = priceNumbers.join(' / ');
+        if (extractedPrices) {
+          result.priceText = td; // 元のテキストを保持
+        }
+      }
+      return false; // ループを終了
+    }
+  });
+
+  return result;
+}
+

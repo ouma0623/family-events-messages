@@ -124,34 +124,87 @@
 
 | 名称 | パス | 対象 | 実行タイミング |
 |---|---|---|---|
-| | scripts/test/ | | |
+| verify-frontend-display.sh | scripts/test/ | T-04, T-05, T-06, T-07 | 実装後、Checkフェーズ |
+| verify-search-ui.sh | scripts/test/ | T-08 | 実装後、Checkフェーズ |
+| verify-backend-data.sh | scripts/test/ | T-01, T-02, T-03 | バッチ完了後、Checkフェーズ |
 
 ---
 
 ### 3.2 実行手順
 
-#### 対象スクリプト
-- 名称：
-- パス：scripts/test/<name>
+#### 3.2.1 verify-frontend-display.sh
 
-#### 目的
-- 何を確認するためのテストか：
+**対象スクリプト**
+- 名称：verify-frontend-display.sh
+- パス：scripts/test/verify-frontend-display.sh
 
-#### 実行方法
+**目的**
+- フロントエンド表示機能（T-04, T-05, T-06, T-07）のコードレビュー
 
+**実行方法**
 ```bash
-# 実行コマンド例
+cd /home/oumasan/work/family-events-messages
+bash scripts/test/verify-frontend-display.sh
 ```
 
-#### 期待結果
-- 正常時の結果：
-- 出力 / ログ：
+**期待結果**
+- すべてのテストがPASSする
+- T-04: おすすめ度削除の確認
+- T-05: 画像表示機能の確認
+- T-06: おすすめ理由表示機能の確認
+- T-07: 料金情報表示機能の確認
 
-#### NG 時の対応
-- 想定される原因：
-- 次のアクション：
-  - Do（実装修正）
-  - Plan（仕様見直し）
+**NG 時の対応**
+- 想定される原因：コード実装の不備
+- 次のアクション：Do（実装修正）
+
+#### 3.2.2 verify-search-ui.sh
+
+**対象スクリプト**
+- 名称：verify-search-ui.sh
+- パス：scripts/test/verify-search-ui.sh
+
+**目的**
+- タグ選択式検索UI（T-08）のコードレビュー
+
+**実行方法**
+```bash
+cd /home/oumasan/work/family-events-messages
+bash scripts/test/verify-search-ui.sh
+```
+
+**期待結果**
+- すべてのテストがPASSする
+- T-08: タグ選択式検索UIの確認
+
+**NG 時の対応**
+- 想定される原因：コード実装の不備
+- 次のアクション：Do（実装修正）
+
+#### 3.2.3 verify-backend-data.sh
+
+**対象スクリプト**
+- 名称：verify-backend-data.sh
+- パス：scripts/test/verify-backend-data.sh
+
+**目的**
+- バックエンドデータ処理（T-01, T-02, T-03）の確認（バッチ完了後）
+
+**実行方法**
+```bash
+cd /home/oumasan/work/family-events-messages
+bash scripts/test/verify-backend-data.sh
+```
+
+**期待結果**
+- DynamoDBにデータが存在する
+- T-01: 料金情報（priceText, isFree）が存在する
+- T-02: カテゴリ分類（categoryClassifications）が存在する
+- T-03: イベントが存在する
+
+**NG 時の対応**
+- 想定される原因：バッチ未完了、データ未取得
+- 次のアクション：バッチ完了後に再実行
 
 ---
 

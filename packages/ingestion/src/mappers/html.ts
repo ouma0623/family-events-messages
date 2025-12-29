@@ -3,7 +3,7 @@
  * WalkerPlusのHTMLデータをEventNormalized形式にマッピング
  */
 
-import { extractFromDataPage, extractFromDetailPage } from '../parsers/html';
+import { extractFromDataPage, extractFromDetailPage, extractFromPricePage } from '../parsers/html';
 
 /**
  * HTMLイベントデータをマッピング
@@ -11,6 +11,7 @@ import { extractFromDataPage, extractFromDetailPage } from '../parsers/html';
 export interface HtmlEventData {
   jsonLd: any;
   dataPage?: any;
+  pricePage?: { priceText?: string; isFree?: boolean };
   eventId: string;
   displayOrder: number;
 }
@@ -21,6 +22,7 @@ export interface HtmlEventData {
 export function mapHtmlEvent(
   jsonLdData: any,
   dataPageHtml: string | null,
+  pricePageHtml: string | null,
   eventId: string,
   displayOrder: number
 ): HtmlEventData {
@@ -30,9 +32,15 @@ export function mapHtmlEvent(
     dataPageData = extractFromDataPage(dataPageHtml);
   }
 
+  let pricePageData: { priceText?: string; isFree?: boolean } | undefined;
+  if (pricePageHtml) {
+    pricePageData = extractFromPricePage(pricePageHtml);
+  }
+
   return {
     jsonLd: jsonLdData,
     dataPage: dataPageData,
+    pricePage: pricePageData,
     eventId,
     displayOrder,
   };

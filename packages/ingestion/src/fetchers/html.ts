@@ -43,6 +43,15 @@ export class HtmlFetcher extends BaseFetcher {
   }
 
   /**
+   * price.htmlページを取得
+   */
+  async fetchPrice(eventId: string): Promise<Buffer> {
+    const priceUrl = `https://www.walkerplus.com/event/${eventId}/price.html`;
+    const response = await this.httpGet(priceUrl);
+    return this.responseToBuffer(response);
+  }
+
+  /**
    * ページネーション付きで一覧ページを取得
    */
   async fetchListPage(pageNumber: number = 1): Promise<Buffer> {

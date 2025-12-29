@@ -17,4 +17,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./date"), exports);
 __exportStar(require("./encoding"), exports);
 __exportStar(require("./hash"), exports);
+__exportStar(require("./categoryClassifier"), exports);
 //# sourceMappingURL=index.js.map

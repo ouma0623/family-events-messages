@@ -6,6 +6,20 @@ const nextConfig = {
   trailingSlash: true,
   images: {
     unoptimized: true, // 静的エクスポートでは画像最適化を無効化
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'via.placeholder.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.walkerplus.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.walkerplus.com',
+      },
+    ],
   },
   eslint: {
     // ビルド時にESLintの警告をエラーとして扱わない

@@ -115,8 +115,23 @@ export async function runWeeklyIngest(
               const dataBuffer = await htmlFetcher.fetchData(eventId);
               const dataHtml = dataBuffer.toString('utf-8');
               
+              // price.htmlを取得（エラーが発生しても処理を続行）
+              let priceHtml: string | null = null;
+              try {
+                const priceBuffer = await htmlFetcher.fetchPrice(eventId);
+                priceHtml = priceBuffer.toString('utf-8');
+              } catch (priceError: any) {
+                const priceErrorMessage = (priceError as any)?.message || (priceError as any)?.toString() || String(priceError);
+                errorHandler.warn(`Failed to fetch price page for ${eventId}`, {
+                  sourceId: source.sourceId,
+                  eventId,
+                  error: priceErrorMessage,
+                });
+                // 料金ページが取得できなくても処理を続行
+              }
+              
               // マッピング
-              const mapped = mapHtmlEvent(detailJsonLd, dataHtml, eventId, displayOrder);
+              const mapped = mapHtmlEvent(detailJsonLd, dataHtml, priceHtml, eventId, displayOrder);
               htmlEvents.push(mapped);
               displayOrder++;
             } catch (error: any) {
