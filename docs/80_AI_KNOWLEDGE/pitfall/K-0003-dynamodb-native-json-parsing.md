@@ -80,3 +80,7 @@ jq -r '.Items[0].raw.categoryClassifications.L[0].M.majorGenre.S // empty' <<< "
 - [AWS DynamoDB JSON形式](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Programming.LowLevelAPI.html#Programming.LowLevelAPI.DataTypeDescriptors)
 - [jq マニュアル](https://stedolan.github.io/jq/manual/)
 
+
+
+
+
